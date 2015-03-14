@@ -1,0 +1,26 @@
+
+
+En fait, la structure de graphe ne sert QUE à implémenter Kruskal ! Car une fois qu'on a
+notre arbre (structure récursive), tout se base sur l'arbre et des BFS/DFS :-) (enfin il faut quand même updater le flot d'edges 
+hors du tree, mais on peut tout faire avec les indices des edges et le tableau d'edges)
+
+
+KRUSKAL + Create TREE: 
+1) avoir un tableau de taille nNode-1 avec les indices des edges qui sont dans l'arbre
+2) pour créer le tree, on part d'un node, pour tous ces voisins, on regarde ceux dont l'edge qui les relient est dans l'arbre
+	(cette étape est un peu lourde parce qu'on va regarder dans toutes les edges encore dispo
+	 si il y en a une dont les node sont ceux qu'on cherche, à améliorer après )
+	et ceux là on les met comme children (il y en a au moins 1). On procède par récurence et quand tous les node sont dans le tree 
+	on s'arrête.
+3) set the flot to 1 on the tree between la source et le sink
+
+
+On suppose plus ou moins qu'on a un tableau avec les edges (qu'il faudra trier selon le poids pour Kruskal)
+
+1) pour calculer un spanning tree de base, il faut faire Kruskal. La première étape est de trier les edges par poids (se fait en n*Logn
+	 avec une librairie sort en C bien choisie). Après il faut ajouter les edges sont faire de cycle (et donc avoir une 
+	 structure de donnée pour nos edges qui permet de voir si on crée des cycles ..)  
+
+
+- Calculer (selon une certaine proba) le cycle qu'il faut modifier
+- Compute the stretch of an edge : find the path in the tree that joins 2 given vertex (BFS, DFS)
