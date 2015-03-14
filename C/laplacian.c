@@ -1,6 +1,6 @@
 /*
  *  laplacian.c
- *  
+ *
  */
 
 #include "laplacian.h"
@@ -10,17 +10,17 @@ static int parent[9];
 void Solve(char *FileName)
 {
 	Problem *theProblem= createProblem(FileName);
-	
+
 	/*printf(" node 1: indice=%d \n ",theProblem->nodes[1].indice);
 	printf(" node 1: voisins[0].indice=%d \n ",theProblem->nodes[1].voisins[1]->indice);
 	printf("edge1.b: indice= %d \n ",theProblem->edges[1].b->indice);*/
-	
+
 	int *treeIndex=Kruskal(theProblem);
 	addToTree(theProblem, &theProblem->theTree, treeIndex);
-	
+
 	// node 0
 	printf("theProblem->theTree.node->indice: %d \n  ", theProblem->theTree.node->indice);
-	printf("theProblem->theTree.node->Child[0]->nChild: %d \n  ", theProblem->theTree.Child[0]->nChild);	
+	printf("theProblem->theTree.node->Child[0]->nChild: %d \n  ", theProblem->theTree.Child[0]->nChild);
 
 
 }
@@ -33,7 +33,7 @@ void exploreDFS(Tree *tree, int nodeIndex)
 {
 	if( tree->node->indice == nodeIndex )
 	{// on est arrivé !
-		
+
 	}
 	else if (tree->nChild > 0)
 	{
@@ -52,37 +52,37 @@ Problem *createProblem(char *FileName)
 //char *line = malloc(100);
 
 Problem *theProblem = malloc(sizeof(Problem));
-int i,trash;    
+int i,trash;
     FILE* file = fopen(FileName,"r");
 
     trash = fscanf(file, "Number of nodes %d \n", &theProblem->nNode);
     int nNode=theProblem->nNode;
     printf("nNode: %d \n", nNode);
     theProblem->nodes=malloc(nNode*sizeof(Node));
-	    
-    double** theArray;  
-    theArray = (double**) malloc(nNode*sizeof(double*));  
-    for (i = 0; i < nNode; i++)  
-       theArray[i] = (double*) malloc(nNode*sizeof(double)); 
-    	    
+
+    double** theArray;
+    theArray = (double**) malloc(nNode*sizeof(double*));
+    for (i = 0; i < nNode; i++)
+       theArray[i] = (double*) malloc(nNode*sizeof(double));
+
     theProblem->Weights=theArray;
     printf("on est là\n");
-    
+
   /*  for(i = 0; i < nNode; i++)
   {
-      for(j = 0; j < nNode; j++) 
+      for(j = 0; j < nNode; j++)
       {
   //Use lf format specifier, %c is for character
-       if (!fscanf(file, "%lf", &theProblem->Weights[i][j])) 
+       if (!fscanf(file, "%lf", &theProblem->Weights[i][j]))
        {
        	printf("break\n");
         break;
        }
-      // mat[i][j] -= '0'; 
+      // mat[i][j] -= '0';
        printf("%lf \n",theProblem->Weights[i][j]); //Use lf format specifier, \n is for new line
       }
   }*/
-    
+
     /* while(getline(&line, &count, file)!=-1) {
         for (; count > 0; count--, j++)
             sscanf(line, "%lf", &theProblem->Weights[i][j]);
@@ -93,11 +93,11 @@ int i,trash;
     {
     	for(j=0; j < nNode; j++)
     	{
-    		fscanf(" .. ", theProblem->Weights[i][j]);    	
+    		fscanf(" .. ", theProblem->Weights[i][j]);
     	}
     	//ici il faut aller à la ligne
     }*/
-	
+
 //int nNode=4;
 int nEdge=4;
 theProblem->nNode=nNode;
@@ -226,21 +226,21 @@ void edgeSort(Problem *theProblem)
 int* Kruskal(Problem *theProblem)
 {
 	/*edgeSort(theProblem);
-	int i; 
+	int i;
 	for(i=0; i<theProblem->nEdge;i++)
 	{// on remet les indices comme il faut après avoir trié
 		theProblem->edges[i].indice=i;
 	}
 	//int *indexEdge=malloc(sizeof(int)*(theProblem->nNode-1));
 	*/
-	
+
     int i,j,k,a,b,u,v,ne=1;
     int n = theProblem->nNode;
     int min,mincost=0;
     int Wmax=999;
     int *treeIndex= malloc((theProblem->nNode-1)*sizeof(int));
     int compteur=0;
-    
+
     while(ne <theProblem->nNode)
     	 {
     		for(i=0,min=Wmax;i<n;i++)
@@ -259,7 +259,7 @@ int* Kruskal(Problem *theProblem)
     	v=find(v);
     	if(uni(u,v))
     	{
-    		
+
     		treeIndex[compteur]=findIndex(a,b,theProblem);
     		ne++;
     		//printf("%d edge (%d,%d) =%d\n",ne++,a,b,min);
@@ -268,7 +268,7 @@ int* Kruskal(Problem *theProblem)
     	}
     		theProblem->Weights[a][b]=theProblem->Weights[b][a]=Wmax;
     	}
-    	
+
     	/*printf("treeIndex[0]=%d \n ", treeIndex[0]);
     	printf("treeIndex[1]=%d \n ", treeIndex[1]);
     	printf("treeIndex[2]=%d \n ", treeIndex[2]);*/
@@ -291,15 +291,15 @@ int uni(int i,int j)
     	}
     	return 0;
 }
-    
+
 int findIndex(int a, int b,Problem *theProblem)
 {
-  	int i; 
+  	int i;
     	for(i=0; i<theProblem->nEdge; i++)
     	{
-    		if( ( theProblem->edges[i].a->indice==a || theProblem->edges[i].b->indice==a) && 
-    			( theProblem->edges[i].a->indice==b || theProblem->edges[i].b->indice==b) )	
-    		{	
+    		if( ( theProblem->edges[i].a->indice==a || theProblem->edges[i].b->indice==a) &&
+    			( theProblem->edges[i].a->indice==b || theProblem->edges[i].b->indice==b) )
+    		{
     			return theProblem->edges[i].indice;
     		}
     	}
@@ -307,7 +307,7 @@ int findIndex(int a, int b,Problem *theProblem)
 /////////////////////////////////////////////////////////////////////////////////
 void 	addToTree(Problem *theProblem, Tree *arbre, int *treeIndex)
 {
-	Node *nodeLocal=arbre->node;	
+	Node *nodeLocal=arbre->node;
 	int i;
 	arbre->Child=malloc(5*sizeof(Tree));// TODO take care de ce degree max de 5 dans l'arbre
 	for(i=0;i<nodeLocal->degree; i++)
@@ -324,26 +324,26 @@ void 	addToTree(Problem *theProblem, Tree *arbre, int *treeIndex)
 			{
 				arbre1.node=nodeLocal->incidentes[i]->a;
 			}
-			
+
 			else{ printf("bug: addToTree \n"); }
 			arbre1.Child=NULL;
 			arbre->Child[arbre->nChild]=&arbre1;
-			arbre->nChild++;			
-		}	
-	
+			arbre->nChild++;
+		}
+
 	}
 	for(i=0; i<arbre->nChild; i++)
 	{
-		addToTree(theProblem, arbre->Child[i],treeIndex);	
+		addToTree(theProblem, arbre->Child[i],treeIndex);
 	}
 
 }
 
 int inTree(Problem *theProblem, int edgeIndex, int *treeIndex)
-{// doit dire si l'edge est dans l'arbre (return 0 ou 1) et mettre à jour somehow le tableau edgeIndex 
+{// doit dire si l'edge est dans l'arbre (return 0 ou 1) et mettre à jour somehow le tableau edgeIndex
 //  pour qu'on ajoute jamais 2 fois une edge :)
-	int i; 
-	
+	int i;
+
 	for(i=0; i< theProblem->nNode-1; i++ )
 	{
 		if ( edgeIndex == treeIndex[i] )
@@ -358,31 +358,52 @@ int inTree(Problem *theProblem, int edgeIndex, int *treeIndex)
 
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////
 
-int stretchCompute(Edge *edgeCurrent, Edge **chemin)
+double stretchEdge(Edge *edgeCurrent, Edge **chemin, int length)
 {
-	/*
+    double stretch = 0.0;
+
+    for(i = 0; i < length; i++)
+    {
+        stretch = stretch + 1/(chemin[i]->weight);
+    }
+    stretch = stretch*(edgeCurrent->weight);
+    return stretch;
+
+    /*
 		edgeCurrent est un pointeur vers une edge dont on veut calculer le stretch.
-		chemin est un tableau dont les éléments sont des pointeurs de type Edge. 
+		chemin est un tableau dont les éléments sont des pointeurs de type Edge.
 		logiquement, le chemin appartient au tree et relie les deux extrémités de edgeCurrent.
-		La fonction devrait faire genre 10 lignes max j'ai l'impression :-) 	
-		
+		La fonction devrait faire genre 10 lignes max j'ai l'impression :-)
+
 		Je ne sais pas si c'est eaxctement cette fonction là qu'on utilisera mais surement une version similaire
-		(peut être arguents un peu différent selon comme cela se passe aux autres etapes). 
+		(peut être arguents un peu différent selon comme cela se passe aux autres etapes).
 		Ca devrait te permettre de voir un peu les structures qu'on a déjà et chipoter pas mal avec des pointeurs :p
 		Après tu peux regarder ce qu'il faut pour la suite et faire une fonction qui calcule les autres quantités necessaires genre
-		la résistance d'un chemin ou des trucs comme ça (voir article :-). Tiens moi au courant souvent et hésite pas 
+		la résistance d'un chemin ou des trucs comme ça (voir article :-). Tiens moi au courant souvent et hésite pas
 		à me demander de te débloquer souvent, tu devrais attraper le truc pluc vite en faisant comme ça ;-)
 	*/
-
-	/*
-	
-	
-	
-	
-	*/
-
-
 }
+
+/* A METTRE A JOUR (en fontion de la structure theProblem)
+double stretchTree(Problem *theProblem, Tree *arbre)
+{
+    nEdge = theProblem->nEdge;
+    listEdges = theProblem->listEdges; A CHANGER
+
+    double stretch = 0;
+
+    for(i = 0; i < nEdge; i++)
+    {
+        edgeCurrent = listEdges[i];
+        chemin = ...  A CHANGER
+        length = ...  A CHANGER
+
+        stretch = stretch + stretchEdge(edgeCurrent, chemin, length);
+    }
+    return stretch;
+}
+*/
+
 
 
 
