@@ -28,8 +28,8 @@ void Solve(char *FileName)
 
 
 
-
-void exploreDFS(Tree *tree, int nodeIndex)
+// cette fonction ressemble a un embryon qui ne naitra jamais
+/*void exploreDFS(Tree *tree, int nodeIndex)
 {
 	if( tree->node->indice == nodeIndex )
 	{// on est arrivé !
@@ -41,7 +41,7 @@ void exploreDFS(Tree *tree, int nodeIndex)
 	}
 	// else : on est en bas, on fait rien
 
-}
+}*/
 
 
 
@@ -354,6 +354,63 @@ int inTree(Problem *theProblem, int edgeIndex, int *treeIndex)
 	}
 	return 0;
 }
+/////////////////////////// DFS & Cie //////////////////////////////
+
+
+Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
+{
+	/*
+		Le plus difficile est de garder en mémoire la liste présumée des edges sur le chemin dans un tebleau default
+		pointeurs sur des egdes: Edge **chemin
+	
+	*/
+	Chemin *chemin=malloc(sizeof(Chemin));
+	chemin->size=0;
+	chemin->theChemin=malloc(theProblem->nEdge*sizeof(Edge));// le tableau de pointeur d'edges est prevu avec sa taille max 
+	
+	int sizeEdgeA=0;
+	int sizeNodeA=0;
+	Edge **edgeGuessA=malloc((theProblem->nEdge*sizeof(Edge)));
+	Node **nodeGuessA=malloc((theProblem->nNode*sizeof(Node)));
+	nodeGuessA[0]=theProblem->theTree->node;
+	sizeNodeA++;
+	int sizeEdgeB=0;
+	int sizeNodeB=0;
+	Edge **edgeGuessB=malloc((theProblem->nEdge*sizeof(Edge)));
+	Node **nodeGuessB=malloc((theProblem->nNode*sizeof(Node)));
+	nodeGuessB[0]=theProblem->theTree->node;
+	sizeNodeB++;
+	
+	/// DFS ///
+	Node *nodeA= edgeCurrent->a;
+	Node *nodeB= edgeCurrent->b;
+	/// 1) chemin tot nodeA ////
+	// voir comment créer une stack (c++ ?)
+	
+	
+	/// 2) chemin tot nodeB ////
+	
+	
+	/// 3) Mix des deux chemins ////
+	
+	int N=fmin(sizeNodeB,sizeNodeA);
+	for(i=N-1; i>=0; i--)
+	{
+		if(nodeGuessA[i]->indice == nodeGuessB[i]->indice)
+		{
+			// TODO mettre ensmeble les deux listes d'edges (utiliser i pour savoir comment couper je crois)
+			// et puis retourner le chemin total (attention à bien traiter le cas limite où le node[0] est sur le chemin)
+			// voir autre cas limite: le node[0] est une des extrémités de edgeCurrent (très facile)
+			//break; 
+		}
+	
+	}
+	
+	
+	chemin->size=sizeEdge;
+	chemin->theChemin=
+}
+
 
 
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////

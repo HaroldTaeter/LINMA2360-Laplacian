@@ -20,6 +20,7 @@ struct Node **voisins;// un tableau de pointeurs avec les voisins
 struct Edge **incidentes;    // tableau edges incidentes TODO
 }; 
 
+
 typedef struct Tree Tree;
 struct Tree {
 int nChild;
@@ -35,6 +36,12 @@ double f; // le flot ? on pourra surement se passer de stocker cela là. Voir ve
 Node *a;
 Node *b;
 };
+
+typedef struct Chemin Chemin;
+struct Chemin{
+int size;
+Edge **theChemin;
+}
 
 typedef struct Problem Problem;
 struct Problem {
@@ -57,5 +64,6 @@ void 		Solve(char *FileName);
 void 		edgeSort(Problem *theProblem);
 int* 		Kruskal(Problem *theProblem);
 int 		edgeCompare( const void *edgea, const void *edgeb);
+Chemin* 	DFS(Edge *edgeCurrent,Problem *theProblem);
 //int edgeCompare( const Edge *edgea, const Edge *edgeb);
 #endif
