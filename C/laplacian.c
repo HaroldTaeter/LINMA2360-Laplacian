@@ -22,27 +22,7 @@ void Solve(char *FileName)
 	printf("theProblem->theTree.node->indice: %d \n  ", theProblem->theTree.node->indice);
 	printf("theProblem->theTree.node->Child[0]->nChild: %d \n  ", theProblem->theTree.Child[0]->nChild);
 
-
 }
-
-
-
-
-// cette fonction ressemble a un embryon qui ne naitra jamais
-/*void exploreDFS(Tree *tree, int nodeIndex)
-{
-	if( tree->node->indice == nodeIndex )
-	{// on est arrivé !
-
-	}
-	else if (tree->nChild > 0)
-	{
-		explore(tree->Child[0], nodeIndex);
-	}
-	// else : on est en bas, on fait rien
-
-}*/
-
 
 
 Problem *createProblem(char *FileName)
@@ -306,7 +286,12 @@ int findIndex(int a, int b,Problem *theProblem)
 }
 /////////////////////////////////////////////////////////////////////////////////
 void 	addToTree(Problem *theProblem, Tree *arbre, int *treeIndex)
-{
+{	
+	/*
+	Crée la structure d'arbre à partir du tableau treeIndex qui contient les indices des edges dans l'arbre.
+	
+	
+	*/
 	Node *nodeLocal=arbre->node;
 	int i;
 	arbre->Child=malloc(5*sizeof(Tree));// TODO take care de ce degree max de 5 dans l'arbre
@@ -364,6 +349,12 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 		pointeurs sur des egdes: Edge **chemin
 	
 	*/
+	/*
+	
+	Ca serait probablement plus rapide que l'arbre ait une structure de graphe et de faire direct bfs/dfs entre les 2 nodes
+	qu'on cherche. Mais pour cela il faut créer l'arbre différement dans kruskal.
+	
+	*/
 	Chemin *chemin=malloc(sizeof(Chemin));
 	chemin->size=0;
 	chemin->theChemin=malloc(theProblem->nEdge*sizeof(Edge));// le tableau de pointeur d'edges est prevu avec sa taille max 
@@ -394,9 +385,10 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 	/// 3) Mix des deux chemins ////
 	
 	int N=fmin(sizeNodeB,sizeNodeA);
-	for(i=N-1; i>=0; i--)
+	
+	for(i=1; i<=N ; i++)
 	{
-		if(nodeGuessA[i]->indice == nodeGuessB[i]->indice)
+		if(nodeGuessA[ sizeNodeA-i ]->indice == nodeGuessB[ sizeNodeB-i]->indice)
 		{
 			// TODO mettre ensmeble les deux listes d'edges (utiliser i pour savoir comment couper je crois)
 			// et puis retourner le chemin total (attention à bien traiter le cas limite où le node[0] est sur le chemin)
