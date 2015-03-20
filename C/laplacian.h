@@ -23,16 +23,22 @@ struct Edge **incidentes;    // tableau edges incidentes TODO
 
 typedef struct Tree Tree;
 struct Tree {
-int nChild;
-Node *node;
-struct Tree **Child;// un tableau de pointeurs avec les voisins
+int nEdgeTree;
+Edge **edgesTree;// TODO, à modifier dans kruskal !!
 };
+
+//typedef struct Tree Tree;
+//struct Tree {
+//int nChild;
+//Node *node;
+//struct Tree **Child;// un tableau de pointeurs avec les voisins
+//};
 
 typedef struct Edge Edge;
 struct Edge {
 int indice; 
 double weight;
-double f; // le flot ? on pourra surement se passer de stocker cela là. Voir vecteur de section 5 
+double f;  
 Node *a;
 Node *b;
 };

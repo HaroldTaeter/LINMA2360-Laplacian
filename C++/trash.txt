@@ -1,0 +1,104 @@
+int sizeEdgeA=0;
+	int sizeNodeA=0;
+	Edge **edgeGuessA=malloc((theProblem->nEdge*sizeof(Edge)));
+	Node **nodeGuessA=malloc((theProblem->nNode*sizeof(Node)));
+	nodeGuessA[0]=theProblem->theTree->node;
+	sizeNodeA++;
+	int sizeEdgeB=0;
+	int sizeNodeB=0;
+	Edge **edgeGuessB=malloc((theProblem->nEdge*sizeof(Edge)));
+	Node **nodeGuessB=malloc((theProblem->nNode*sizeof(Node)));
+	nodeGuessB[0]=theProblem->theTree->node;
+	sizeNodeB++;
+	
+/////////////////////////////////////////////////////////////////////////
+
+
+int N=fmin(sizeNodeB,sizeNodeA);
+	
+	for(i=1; i<=N ; i++)
+	{
+		if(nodeGuessA[ sizeNodeA-i ]->indice == nodeGuessB[ sizeNodeB-i]->indice)
+		{
+			// TODO mettre ensmeble les deux listes d'edges (utiliser i pour savoir comment couper je crois)
+			// et puis retourner le chemin total (attention à bien traiter le cas limite où le node[0] est sur le chemin)
+			// voir autre cas limite: le node[0] est une des extrémités de edgeCurrent (très facile)
+			//break; 
+		}
+	
+	}
+	
+	
+	/////////////////////////////////////////////////////
+	// approches du code avec les incidentes             	TO DELETE	
+//	      	       	if ( theProblem->nodes[currentNode].incidentes[i]->a->indice == currentNode)
+//	      	       	{// on est dans le cas où le currentNode est "à la base (coté a) de l'edge qu'on emprunte" 
+//	      	       		myqueue.push( theProblem->nodes[currentNode].incidentes[i]->b->indice  );// TODO check
+//                		generators[theProblem->nodes[currentNode].incidentes[i]->b->indice] = currentNode;
+//	      	       	}
+//	      	       	else
+//	      	       	{// on est dans le cas où le currentNode est "à l'autre bout (coté b) de l'edge qu'on emprunte"
+//	      	       		myqueue.push( theProblem->nodes[currentNode].incidentes[i]->a->indice  );// TODO check
+//	                	generators[theProblem->nodes[currentNode].incidentes[i]->a->indice] = currentNode;
+//	      	       	}
+
+
+
+///////////////////////////////////////////////////////////////////:
+
+//    FILE* file = fopen(FileName,"r");
+
+//    trash = fscanf(file, "Number of nodes %d \n", &theProblem->nNode);
+//    int nNode=theProblem->nNode;
+//    printf("nNode: %d \n", nNode);
+
+//    double** theArray;
+//    theArray = (double**) malloc(nNode*sizeof(double*));
+//    for (i = 0; i < nNode; i++)
+//       theArray[i] = (double*) malloc(nNode*sizeof(double));
+
+//    theProblem->Weights=theArray;
+//    printf("on est là\n");
+
+  /*  for(i = 0; i < nNode; i++)
+  {
+      for(j = 0; j < nNode; j++)
+      {
+  //Use lf format specifier, %c is for character
+       if (!fscanf(file, "%lf", &theProblem->Weights[i][j]))
+       {
+       	printf("break\n");
+        break;
+       }
+      // mat[i][j] -= '0';
+       printf("%lf \n",theProblem->Weights[i][j]); //Use lf format specifier, \n is for new line
+      }
+  }*/
+
+    /* while(getline(&line, &count, file)!=-1) {
+        for (; count > 0; count--, j++)
+            sscanf(line, "%lf", &theProblem->Weights[i][j]);
+        i++;
+    }*/
+    
+   /* for (i = 0; i < nNode; i++)
+    {
+    	for(j=0; j < nNode; j++)
+    	{
+    		fscanf(" .. ", theProblem->Weights[i][j]);
+    	}
+    	//ici il faut aller à la ligne
+    }*/
+
+//int nNode=4;
+
+////////////////////////////////////////////////////////////////:
+
+/*edgeSort(theProblem);
+	int i;
+	for(i=0; i<theProblem->nEdge;i++)
+	{// on remet les indices comme il faut après avoir trié
+		theProblem->edges[i].indice=i;
+	}
+	//int *indexEdge=malloc(sizeof(int)*(theProblem->nNode-1));
+	*/

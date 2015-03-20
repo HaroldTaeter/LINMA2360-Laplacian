@@ -407,6 +407,52 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////
 
+
+// ON Continue Jean Pierre ! ///
+
+double* probaCompute(Problem theProblem, int *treeIndex, Tree theTree )
+{
+/*
+La calcule la probabilité de chaque edge hors du graphe d'être piochée pour qu'on modifie le flot de son cycle à l'itération courante.
+Tu dois renvoyer un vecteur de doubles qui contient ces probabilités.
+
+*/
+
+double *proba=malloc(sizeof(double)*(// ici tu trouve la taille des edges qui sont pas dans l'arbre') ); //c'est nEdge - nEdgeTree ;-)
+
+ 	/*
+	.
+	.	TODO	 tu dois surement utiliser tes fonctions de stretch  et tout :-) 
+	.
+	*/
+
+return proba; 
+}
+
+void CycleUpdate(Edge *edgeCurrent, Problem theProblem)
+{
+/*
+	Tu as edgeCurrent qui t'as été donnée par la fonciton précédente. Tu calcule son stretch et tout si necessaire, 
+	son cycle via la fonction 
+	Chemin* DFS(Edge *edgeCurrent,Problem *theProblem);
+	
+	qui renvoie: 
+Specification:
+Returns a Chemin structure that goes from the Node "edgeCurrent->b" to "edgeCurrent->a".
+edgeCurrent is an edge that does not belong to theTree.
+
+
+Un object/structure de type Chemin t'as cela sur slack si jamais :-)
+
+Donc ici ton job c'est de parcourir toutes les edges du chemin (via le tableau d'edges de la struct Chemin) et de mettre le flot à jour.
+Il est possible que la fonction ne fasse que 15 lignes, c'est un peu celle où on utilise quelques précédentes :-)
+*/
+
+
+// GO GO GO
+}
+
+
 double stretchEdge(Edge *edgeCurrent, Edge **chemin, int length)
 {
     double stretch = 0.0;
