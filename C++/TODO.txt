@@ -1,0 +1,7 @@
+
+
+-) Relire les structure dont harold a besoin et lui donner :-)
+-) Modifier la création de l'arbre (au final c'es quasiment qu'un tableau de *Edge) donc bcp plus facile. On va créer un tableau de "prédécesseurs". Comme ça on peut trouver les cycles facilement en remontant vers la source. Au final ce tab de predecessor peut être construit en faisant DFS sur l'arbre (et on ne s'arrête que quand tout a été exploré) et on rempli le tab au fur et à mesure qu'on descend
+
+
+
