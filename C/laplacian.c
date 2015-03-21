@@ -384,25 +384,56 @@ double stretchEdge(Edge *edgeCurrent, Edge **chemin, int length)
 	*/
 }
 
-/* A METTRE A JOUR (en fontion de la structure theProblem)
+/* A METTRE A JOUR (en fontion de la structure theProblem etc)
 double stretchTree(Problem *theProblem, Tree *arbre)
 {
-    nEdge = theProblem->nEdge;
+    int nEdge = theProblem->nEdge;
     listEdges = theProblem->listEdges; A CHANGER
 
-    double stretch = 0;
+    double stretch = 0.0;
 
     for(i = 0; i < nEdge; i++)
     {
-        edgeCurrent = listEdges[i];
-        chemin = ...  A CHANGER
+        *edgeCurrent = listEdges[i];
+        **chemin = ...  A CHANGER
         length = ...  A CHANGER
 
-        stretch = stretch + stretchEdge(edgeCurrent, chemin, length);
+        stretch = stretch + stretchEdge(*edgeCurrent, **chemin, length);
     }
     return stretch;
 }
 */
+
+/* A METTRE A JOUR (en fontion de la structure theProblem etc)
+double probabilityEdge(Edge *edgeCurrent, Tree *arbre, Problem *theProblem)
+{
+    **chemin = ...
+    double stretchE = stretchEdge(*edgeCurrent, **chemin, length);
+    double stretchT = stretchTree(*theProblem, *arbre);
+    double re = 1/(edgeCurrent->weight);
+    double Re = re*(1+stretchE);
+    int m = theProblem->nEdge;
+    int n = theProblem->nNode;
+    double CondNum = stretchT + m - 2*n + 2;
+    double probability = (1/CondNum)*(Re/re);
+
+    return probability;
+}
+*/
+
+/*
+int iterationsK(Problem *theProblem, Tree *arbre, double eps)
+{
+    double stretchT = stretchTree(*theProblem, *arbre);
+    int m = theProblem->nEdge;
+    int n = theProblem->nNode;
+    double CondNum = stretchT + m - 2*n + 2;
+    int K = (int)ceil(CondNum*log(stretchT*CondNum/eps));
+
+    return K;
+}
+*/
+
 
 
 
