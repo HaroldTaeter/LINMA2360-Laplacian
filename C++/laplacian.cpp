@@ -20,7 +20,7 @@ void Solve(char *FileName)
 {
 	Problem *theProblem= createProblem(FileName);
 	Kruskal(theProblem);
-	int i; 
+	int i;
 //	for(i=0; i< theProblem->nNode-1; i++)
 //	{
 //		printf("weight of edge %d in tree is %f \n", i, theProblem->theTree.edgesTree[i]->weight);
@@ -69,7 +69,7 @@ FILE* fichier = NULL;
 		fseek(fichier,16,SEEK_SET);
 		fscanf(fichier,"%d",&theProblem->nNode);
 		int nNode=theProblem->nNode;
-		
+
 		//printf("La longueur est %d\n",nNode);
 
 
@@ -83,10 +83,10 @@ FILE* fichier = NULL;
 			for(int column = 0; column < nNode; column++)
 			{
 				fseek(fichier,1,SEEK_CUR);
-				fscanf(fichier,"%lf",&tableau[row][column]); 
+				fscanf(fichier,"%lf",&tableau[row][column]);
 				tableau[row][column]= - tableau[row][column];
 				if(row == column)	tableau[row][row]=0.0;
-				
+
 			}
 		}
 		fclose(fichier);
@@ -105,7 +105,7 @@ int nEdge=0; // TODO à mettre à jour !
 for(i = 0; i < nNode; i++)
   {
   	// update node[i]
-  	theProblem->nodes[i].indice=i; 
+  	theProblem->nodes[i].indice=i;
   	theProblem->nodes[i].degree=0;
   	// INCIDENTES ? :p
       for(j = 0; j < i; j++)
@@ -114,14 +114,14 @@ for(i = 0; i < nNode; i++)
   	     {
   	     	// TODO create edge et nodes etc ..
   	     	// pas besoin de voisins, on a incidentes
-  	     	// 
-  	     	
-  	     	
-  	     	
+  	     	//
+
+
+
   	     	// update node[j]
-  	     	
-  	     	
-  	     	
+
+
+
   	     	// update edge[i,j]
   	     	if(nEdge >= nEdgeGuess)
   	     	{
@@ -133,7 +133,7 @@ for(i = 0; i < nNode; i++)
   	     	theProblem->edges[nEdge].weight=&theProblem->Weights[i][j];
   	     	theProblem->edges[nEdge].f=0.0;
   	     	nEdge++;
-  	     
+
   	     }
       }
   }
@@ -395,18 +395,26 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 {
 	Chemin *path= new Chemin[1];
 
-	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO 
-	
+	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
+
 	int numberEdges = 0;
 	Node *nodeA= edgeCurrent->a;
 	Node *nodeB= edgeCurrent->b;
+
+	if( (theProblem->theTree.predecessor[nodeA->indice]==nodeB->indice)||(theProblem->theTree.predecessor[nodeB->indice]==nodeA->indice) )
+    {
+        path->size=1;
+        path->theChemin[0]=edgeCurrent;
+        return path;
+    }
+
 	int nextB=0;
 	int currentB=nodeB->indice;
 	int currentA=nodeA->indice;
 	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
 	tabA[0]=currentA;
-	int sizeB=0; 
-	int sizeA=1; 
+	int sizeB=0;
+	int sizeA=1;
 
 	int stopNode=-1;
 	int i=0;
@@ -419,7 +427,7 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 		int nextA=theProblem->theTree.predecessor[currentA];
 
 		printf("nextA= %d \n", nextA);
-		
+
 		path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
 		sizeB++;
 		// check tab en A: stop ou non
@@ -435,7 +443,7 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 			}
 		}
 
-		//if(stopNode >=0) break; 
+		//if(stopNode >=0) break;
 
 		currentA=nextA;
 		currentB=nextB;
@@ -464,7 +472,7 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
     double stretch = 0.0;
     int length = Chemin->size;
 
-    for(i = 0; i < length; i++)
+    for(int i = 0; i < length; i++)
     {
         stretch = stretch + 1/(Chemin->theChemin[i]->weight);
     }
@@ -476,18 +484,12 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
 /* A VERIFIER */
 double stretchTree(Problem *theProblem)
 {
-    int nEdge = theProblem->nEdge;
-    Edge *listEdges = theProblem->edges; // OK MAIS INUTILE. Je trouve ça plus clair de garder theProblem->edges (perso quoi)
-
     double stretch = 0.0;
 
-    for(i = 0; i < nEdge; i++)
+    for(int i = 0; i < theProblem->nEdge; i++)
     {
-        Edge *edgeCurrent = listEdges[i];
-        Chemin *theChemin = findCycle(edgeCurrent, theProblem); // findCycle NE VA PAS SI l'EDGE EST DANS LE TREE.
-        							// DONC FAUDRAIT TESTER SI l'EDGE EST DANS LE TREE
-        							//  AVANT OU un truc comme ça
-
+        Edge *edgeCurrent = theProblem->edges[i];
+        Chemin *theChemin = findCycle(edgeCurrent, theProblem);
         stretch = stretch + stretchEdge(edgeCurrent, theChemin);
     }
     return stretch;
@@ -512,18 +514,9 @@ double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 /* A VERIFIER */
 double* probaCompute(Problem *theProblem)
 {
-    Edge *edgesProblem = theProblem->edges; // OK MAIS INUTILE
-
-    Tree theTree = theProblem->theTree; // OK MAIS INUTILE
-    Edge **edgesTree = theTree->edgesTree; // OK MAIS INUTILE
-
     int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
 
-    double **probabilities = new double*[nEdgeOutTree]; // NOPE
-    // TODO: double *probabilities = new double*[nEdgeOutTree];
-    //REMARQUE: on s'en occupe pas encore trop maintenant mais c'est pas bien (je le fais pas partout non plus..). 
-    //Il faut free la mémorie qu'on déclare 
-    // manuellement (donc faire des delete dès qu'il y a des new)
+    double *probabilities = new double*[nEdgeOutTree];
 
     int edgesFound = 0;
 
@@ -532,7 +525,7 @@ double* probaCompute(Problem *theProblem)
         bool entered = false;
         for(int j = 0; j < (theProblem->nNode-1); j++)
         {
-            if(edgesProblem[i]->indice == edgesTree[j]->indice)
+            if(theProblem->edges[i].indice == theProblem->theTree.edgesTree[j]->indice)
             {
                 entered = true;
                 break;
@@ -540,7 +533,7 @@ double* probaCompute(Problem *theProblem)
         }
         if(!entered)
         {
-            probabilities[edgesFound] = probabilityEdge(edgesProblem[i], theProblem);
+            probabilities[edgesFound] = probabilityEdge(theProblem->edges[i], theProblem);
             edgesFound = edgesFound + 1;
         }
     }
@@ -565,24 +558,24 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
 {
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
 
-    Chemin *theChemin = findCycle(edgeCurrent, theProblem);
-    Edge **edgesChemin = theChemin->theChemin; // CELA PEUT MARCHER MAIS C'EST FOIREUX de mettre deux fois le nom theChemin
+    Chemin *myChemin = findCycle(edgeCurrent, theProblem);
+    Edge **edgesChemin = myChemin->theChemin; // CELA PEUT MARCHER MAIS C'EST FOIREUX de mettre deux fois le nom theChemin
     						// pour des trucs différents.
-    // J'aurai fait: 						
+    // J'aurai fait:
     // Chemin *myChemin = findCycle(edgeCurrent, theProblem);
     // et après tu fais myChemin->theChemin au lieu de edgesChemin :)
-    
-    
-    double stretchE = stretchEdge(edgeCurrent, theChemin);
+
+
+    double stretchE = stretchEdge(edgeCurrent, myChemin);
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
 
-    for(i = 0; i < theChemin->size; i++)
+    for(int i = 0; i < myChemin->size; i++)
     {
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     }
     // TO BE CONTINUED
-    
+
     // CONTINUONS :)
 
 /*
