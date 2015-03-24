@@ -286,11 +286,11 @@ int findIndex(int a, int b,Problem *theProblem)
 }
 /////////////////////////////////////////////////////////////////////////////////
 void 	addToTree(Problem *theProblem, Tree *arbre, int *treeIndex)
-{	
+{
 	/*
 	Crée la structure d'arbre à partir du tableau treeIndex qui contient les indices des edges dans l'arbre.
-	
-	
+
+
 	*/
 	Node *nodeLocal=arbre->node;
 	int i;
@@ -347,18 +347,18 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 	/*
 		Le plus difficile est de garder en mémoire la liste présumée des edges sur le chemin dans un tebleau default
 		pointeurs sur des egdes: Edge **chemin
-	
+
 	*/
 	/*
-	
+
 	Ca serait probablement plus rapide que l'arbre ait une structure de graphe et de faire direct bfs/dfs entre les 2 nodes
 	qu'on cherche. Mais pour cela il faut créer l'arbre différement dans kruskal.
-	
+
 	*/
 	Chemin *chemin=malloc(sizeof(Chemin));
 	chemin->size=0;
-	chemin->theChemin=malloc(theProblem->nEdge*sizeof(Edge));// le tableau de pointeur d'edges est prevu avec sa taille max 
-	
+	chemin->theChemin=malloc(theProblem->nEdge*sizeof(Edge));// le tableau de pointeur d'edges est prevu avec sa taille max
+
 	int sizeEdgeA=0;
 	int sizeNodeA=0;
 	Edge **edgeGuessA=malloc((theProblem->nEdge*sizeof(Edge)));
@@ -371,21 +371,21 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 	Node **nodeGuessB=malloc((theProblem->nNode*sizeof(Node)));
 	nodeGuessB[0]=theProblem->theTree->node;
 	sizeNodeB++;
-	
+
 	/// DFS ///
 	Node *nodeA= edgeCurrent->a;
 	Node *nodeB= edgeCurrent->b;
 	/// 1) chemin tot nodeA ////
 	// voir comment créer une stack (c++ ?)
-	
-	
+
+
 	/// 2) chemin tot nodeB ////
-	
-	
+
+
 	/// 3) Mix des deux chemins ////
-	
+
 	int N=fmin(sizeNodeB,sizeNodeA);
-	
+
 	for(i=1; i<=N ; i++)
 	{
 		if(nodeGuessA[ sizeNodeA-i ]->indice == nodeGuessB[ sizeNodeB-i]->indice)
@@ -393,12 +393,12 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 			// TODO mettre ensmeble les deux listes d'edges (utiliser i pour savoir comment couper je crois)
 			// et puis retourner le chemin total (attention à bien traiter le cas limite où le node[0] est sur le chemin)
 			// voir autre cas limite: le node[0] est une des extrémités de edgeCurrent (très facile)
-			//break; 
+			//break;
 		}
-	
+
 	}
-	
-	
+
+
 	chemin->size=sizeEdge;
 	chemin->theChemin=
 }
@@ -409,49 +409,6 @@ Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 
 
 // ON Continue Jean Pierre ! ///
-
-double* probaCompute(Problem theProblem, int *treeIndex, Tree theTree )
-{
-/*
-La calcule la probabilité de chaque edge hors du graphe d'être piochée pour qu'on modifie le flot de son cycle à l'itération courante.
-Tu dois renvoyer un vecteur de doubles qui contient ces probabilités.
-
-*/
-
-double *proba=malloc(sizeof(double)*(// ici tu trouve la taille des edges qui sont pas dans l'arbre') ); //c'est nEdge - nEdgeTree ;-)
-
- 	/*
-	.
-	.	TODO	 tu dois surement utiliser tes fonctions de stretch  et tout :-) 
-	.
-	*/
-
-return proba; 
-}
-
-void CycleUpdate(Edge *edgeCurrent, Problem theProblem)
-{
-/*
-	Tu as edgeCurrent qui t'as été donnée par la fonciton précédente. Tu calcule son stretch et tout si necessaire, 
-	son cycle via la fonction 
-	Chemin* DFS(Edge *edgeCurrent,Problem *theProblem);
-	
-	qui renvoie: 
-Specification:
-Returns a Chemin structure that goes from the Node "edgeCurrent->b" to "edgeCurrent->a".
-edgeCurrent is an edge that does not belong to theTree.
-
-
-Un object/structure de type Chemin t'as cela sur slack si jamais :-)
-
-Donc ici ton job c'est de parcourir toutes les edges du chemin (via le tableau d'edges de la struct Chemin) et de mettre le flot à jour.
-Il est possible que la fonction ne fasse que 15 lignes, c'est un peu celle où on utilise quelques précédentes :-)
-*/
-
-
-// GO GO GO
-}
-
 
 double stretchEdge(Edge *edgeCurrent, Edge **chemin, int length)
 {
@@ -479,25 +436,91 @@ double stretchEdge(Edge *edgeCurrent, Edge **chemin, int length)
 	*/
 }
 
-/* A METTRE A JOUR (en fontion de la structure theProblem)
+/* A METTRE A JOUR (en fontion de la structure theProblem etc)
 double stretchTree(Problem *theProblem, Tree *arbre)
 {
-    nEdge = theProblem->nEdge;
+    int nEdge = theProblem->nEdge;
     listEdges = theProblem->listEdges; A CHANGER
 
-    double stretch = 0;
+    double stretch = 0.0;
 
     for(i = 0; i < nEdge; i++)
     {
-        edgeCurrent = listEdges[i];
-        chemin = ...  A CHANGER
+        *edgeCurrent = listEdges[i];
+        **chemin = ...  A CHANGER
         length = ...  A CHANGER
 
-        stretch = stretch + stretchEdge(edgeCurrent, chemin, length);
+        stretch = stretch + stretchEdge(*edgeCurrent, **chemin, length);
     }
     return stretch;
 }
 */
+
+/* A METTRE A JOUR (en fontion de la structure theProblem etc) */
+double probabilityEdge(Edge *edgeCurrent, Tree *arbre, Problem *theProblem)
+{
+    Chemin **chemin = DFS(edgeCurrent, theProblem);
+    double stretchE = stretchEdge(edgeCurrent, chemin, length);
+    double stretchT = stretchTree(theProblem, arbre);
+    double re = 1/(edgeCurrent->weight);
+    double Re = re*(1+stretchE);
+    int m = theProblem->nEdge;
+    int n = theProblem->nNode;
+    double CondNum = stretchT + m - 2*n + 2;
+    double probability = (1/CondNum)*(Re/re);
+
+    return probability;
+}
+
+double* probaCompute(Problem theProblem, int *treeIndex, Tree theTree )
+{
+/*
+La calcule la probabilité de chaque edge hors du graphe d'être piochée pour qu'on modifie le flot de son cycle à l'itération courante.
+Tu dois renvoyer un vecteur de doubles qui contient ces probabilités.
+
+*/
+
+double *proba=malloc(sizeof(double)*(// ici tu trouve la taille des edges qui sont pas dans l'arbre') ); //c'est nEdge - nEdgeTree ;-)
+
+return proba;
+}
+
+void CycleUpdate(Edge *edgeCurrent, Problem theProblem)
+{
+/*
+	Tu as edgeCurrent qui t'as été donnée par la fonciton précédente. Tu calcule son stretch et tout si necessaire,
+	son cycle via la fonction
+	Chemin* DFS(Edge *edgeCurrent,Problem *theProblem);
+
+	qui renvoie:
+Specification:
+Returns a Chemin structure that goes from the Node "edgeCurrent->b" to "edgeCurrent->a".
+edgeCurrent is an edge that does not belong to theTree.
+
+
+Un object/structure de type Chemin t'as cela sur slack si jamais :-)
+
+Donc ici ton job c'est de parcourir toutes les edges du chemin (via le tableau d'edges de la struct Chemin) et de mettre le flot à jour.
+Il est possible que la fonction ne fasse que 15 lignes, c'est un peu celle où on utilise quelques précédentes :-)
+*/
+
+
+// GO GO GO
+}
+
+/*
+int iterationsK(Problem *theProblem, Tree *arbre, double eps)
+{
+    double stretchT = stretchTree(*theProblem, *arbre);
+    int m = theProblem->nEdge;
+    int n = theProblem->nNode;
+    double CondNum = stretchT + m - 2*n + 2;
+    int K = (int)ceil(CondNum*log(stretchT*CondNum/eps));
+
+    return K;
+}
+*/
+
 
 
 
