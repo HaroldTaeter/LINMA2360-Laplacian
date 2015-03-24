@@ -19,8 +19,8 @@ typedef struct Node Node;
 struct Node {
 int degree;
 int indice;
-struct Node **voisins;// un tableau de pointeurs avec les voisins
-struct Edge **incidentes;    // tableau edges incidentes TODO
+struct Node **voisins;// Assez redondant ..
+struct Edge **incidentes; 
 }; 
 
 typedef struct Edge Edge;
@@ -38,7 +38,6 @@ Node *nodeSource;
 int *predecessor;  
 Edge **edgesTree;
 };
-
 
 typedef struct Chemin Chemin;
 struct Chemin{

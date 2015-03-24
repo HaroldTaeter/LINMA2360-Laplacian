@@ -1,3 +1,101 @@
+// ON N'UTILISE PLUS CETTE FONCTION POUR L'INSTANT !
+//Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
+//{
+///*
+//Specification:
+//Returns a Chemin structure that goes from the Node "edgeCurrent->b" to "edgeCurrent->a".
+//edgeCurrent is an edge that does not belong to theTree.
+//*/
+//	
+//	/// DFS ///
+//	int i; 
+//	int found=0;
+//	int *generators = new int[theProblem->nNode];
+//	//int *generators = malloc(sizeof(int)*theProblem->nNode);
+//	int numberEdges = 0;
+//	Node *nodeA= edgeCurrent->a;
+//	Node *nodeB= edgeCurrent->b;
+//	/// 1) DFS from nodeA tot nodeB ////
+//	queue<int> myqueue;
+//	myqueue.push(nodeA->indice);
+//	
+//	while(!myqueue.empty())
+//	{
+//        if(myqueue.front() == nodeB->indice)
+//        {
+//        	found =1;// check pour dire qu'on a trouvé le node destination 
+//        	break;
+//        } 
+//	else
+//	{
+//		int currentNode=myqueue.front();// on va spliter ce node
+//        	myqueue.pop();
+//        	for (i = 0; i < theProblem->nodes[currentNode].degree ; i++)
+//            	{	
+//			myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
+//			generators[theProblem->nodes[currentNode].voisins[i]->indice]=currentNode;// TODO tc                 	
+//            	}
+//            }
+//    	}
+//    
+//	// sanity check
+//	if (found ==1)	
+//	{
+//		 cout << "on a found le chemin \n ";
+//	}
+//	else{
+//		cout << "ERROR: chemin not found in DFS \n";
+//	}
+//	
+//	/// 2) Recover path ////
+//	
+//	// la structure à remplir, (puis changer ordre pour les edges ?)
+//	//Chemin *chemin=malloc(sizeof(Chemin));
+//	Chemin *chemin=new Chemin[1];
+//	chemin->size=0;
+//	chemin->theChemin=NULL;
+//	int *reverse=new int[theProblem->nEdge];
+//	//malloc(theProblem->nEdge*sizeof(Edge));// on le rempli trop grand mais on va pas jusqu'au bout
+//	
+//	int k=nodeB->indice;						   	
+//	while( generators[k] != nodeA->indice)
+//	{// remplir reverse en parcourant le mapping
+//		
+//		// trouver l'indice de l'edge qui relie les nodes d'indices k et generators[k]:
+//		for(i=0; i< theProblem->nodes[k].degree; i++ )
+//		{
+//			if( (theProblem->nodes[k].incidentes[i]->a->indice == k &&
+//			     theProblem->nodes[k].incidentes[i]->b->indice == generators[k] ) || 
+//			     (theProblem->nodes[k].incidentes[i]->a->indice == generators[k] &&
+//			     theProblem->nodes[k].incidentes[i]->b->indice == k ) )
+//			{
+//				reverse[chemin->size]=theProblem->nodes[k].incidentes[i]->indice;
+//				break; 	
+//			}
+//		}
+//		chemin->size= chemin->size+1;	
+//		k=generators[k];
+//	}
+//	chemin->theChemin=new Edge*[chemin->size];
+//	//malloc(theChemin->size*sizeof(Edge));
+//	for(i=0; i<chemin->size; i++)
+//	{
+//		chemin->theChemin[i]=&(theProblem->edges[reverse[i]]);// theChemin c'est des pointeurs et reverse c'est des indices
+//	}
+	
+/* ON A PEUT ETRE PAS BESOIN DE RETOURNER LE CYCLE, DEPEND DES SIGNES de flots ETC, TODO à vérifier */	
+//	chemin->size=numberEdges;
+//	chemin->theChemin=malloc(numberEdges*sizeof(Edge));
+//	for(i=0; i<numberEdges; i++)
+//	{
+//		chemin->theChemin[i]=reverse[numberEdges-1-i];
+//	}
+	
+//	return chemin;
+//}
+
+
+
 int sizeEdgeA=0;
 	int sizeNodeA=0;
 	Edge **edgeGuessA=malloc((theProblem->nEdge*sizeof(Edge)));

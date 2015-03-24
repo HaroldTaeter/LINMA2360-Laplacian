@@ -21,10 +21,10 @@ void Solve(char *FileName)
 	Problem *theProblem= createProblem(FileName);
 	Kruskal(theProblem);
 	int i; 
-	for(i=0; i< theProblem->nNode-1; i++)
-	{
-		printf("weight of edge %d in tree is %f \n", i, theProblem->theTree.edgesTree[i]->weight);
-	}
+//	for(i=0; i< theProblem->nNode-1; i++)
+//	{
+//		printf("weight of edge %d in tree is %f \n", i, theProblem->theTree.edgesTree[i]->weight);
+//	}
 //	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
 //	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
 //	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
@@ -69,7 +69,7 @@ FILE* fichier = NULL;
 		fscanf(fichier,"%d",&theProblem->nNode);
 		int nNode=theProblem->nNode;
 		
-		printf("La longueur est %d\n",nNode);
+		//printf("La longueur est %d\n",nNode);
 
 		double **tableau = (double**) malloc(nNode*sizeof(double*));
 		for (i = 0; i < nNode; i++)
@@ -82,6 +82,9 @@ FILE* fichier = NULL;
 			{
 				fseek(fichier,1,SEEK_CUR);
 				fscanf(fichier,"%lf",&tableau[row][column]); 
+				tableau[row][column]= - tableau[row][column];
+				if(row == column)	tableau[row][row]=0.0;
+				
 			}
 		}
 		fclose(fichier);
@@ -92,21 +95,50 @@ FILE* fichier = NULL;
 		printf("Impossible d'ouvrir le fichier data.txt");
 	}
 int nNode=theProblem->nNode;
+int nEdgeGuess=nNode;// à adapter
+theProblem->nodes=new Node[nNode];
+theProblem->edges=new Edge[nEdgeGuess];
+int nEdge=0; // TODO à mettre à jour !
+
 for(i = 0; i < nNode; i++)
   {
-      for(j = 0; j < nNode; j++)
+  	// update node[i]
+  	theProblem->nodes[i].indice=i; 
+  	theProblem->nodes[i].degree=0;
+  	// INCIDENTES ? :p
+      for(j = 0; j < i; j++)
       {
-  	     printf("%lf ",theProblem->Weights[i][j]); //Use lf format specifier, \n is for new line
+  	     if(theProblem->Weights[i][j]!=0.0)
+  	     {
+  	     	// TODO create edge et nodes etc ..
+  	     	// pas besoin de voisins, on a incidentes
+  	     	// 
+  	     	
+  	     	
+  	     	
+  	     	// update node[j]
+  	     	
+  	     	
+  	     	
+  	     	// update edge[i,j]
+  	     	if(nEdge >= nEdgeGuess)
+  	     	{
+  	     		// TODO realloc car on a plus de place. Ne va pas arriver tant que m<n dans le graphe
+  	     	}
+  	     	theProblem->edges[nEdge].indice=nEdge;
+  	     	theProblem->edges[nEdge].a=&theProblem->nodes[i];
+  	     	theProblem->edges[nEdge].b=&theProblem->nodes[j];
+  	     	theProblem->edges[nEdge].weight=&theProblem->Weights[i][j];
+  	     	theProblem->edges[nEdge].f=0.0;
+  	     	nEdge++;
+  	     
+  	     }
       }
-      printf("\n");
   }
 
 
-int nEdge=4;
-theProblem->nNode=nNode;
-theProblem->nEdge=nEdge;
-theProblem->nodes=new Node[nNode];
-theProblem->edges=new Edge[nEdge];
+//int nEdge=4;
+//theProblem->nEdge=nEdge;
 
 //NODE0
 theProblem->nodes[0].indice=0;
@@ -261,7 +293,6 @@ void Kruskal(Problem *theProblem)
     	v=find(v);
     	if(uni(u,v))
     	{
-
     		//treeIndex[compteur]=findIndex(a,b,theProblem);
     		theProblem->theTree.edgesTree[compteur]=&theProblem->edges[findIndex(a,b,theProblem)];
     		ne++;
@@ -344,7 +375,6 @@ for(i=0; i < theProblem->nodes[a].degree; i++)
 		index = theProblem->nodes[a].incidentes[i]->indice;
 		break; 
 	}
-
 }
 
 return index; 
@@ -362,7 +392,7 @@ Returns the Chemin in the tree that goes from both ends of the edgeCurrent
 Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 {
 	Chemin *path= new Chemin[1];
-	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long 
+	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO 
 	
 	int numberEdges = 0;
 	Node *nodeA= edgeCurrent->a;
@@ -371,8 +401,9 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 	int currentB=nodeB->indice;
 	int currentA=nodeA->indice;
 	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	tabA[0]=currentA;
 	int sizeB=0; 
-	int sizeA=0; 
+	int sizeA=1; 
 	int stopNode=-1;
 	int i=0;
 	
@@ -380,7 +411,9 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 	while(check)
 	{
 		int nextB=theProblem->theTree.predecessor[currentB];
+		printf("nextB= %d \n", nextB);
 		int nextA=theProblem->theTree.predecessor[currentA];
+		printf("nextA= %d \n", nextA);
 		
 		path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
 		sizeB++;
@@ -396,7 +429,7 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 				break; 
 			}
 		}
-		if(stopNode >=0) break; 
+		//if(stopNode >=0) break; 
 
 		currentA=nextA;
 		currentB=nextB;
@@ -413,156 +446,6 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 	return path; 
 
 }
-
-
-// ON N'UTILISE PLUS CETTE FONCTION POUR L'INSTANT !
-//Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
-//{
-///*
-//Specification:
-//Returns a Chemin structure that goes from the Node "edgeCurrent->b" to "edgeCurrent->a".
-//edgeCurrent is an edge that does not belong to theTree.
-//*/
-//	
-//	/// DFS ///
-//	int i; 
-//	int found=0;
-//	int *generators = new int[theProblem->nNode];
-//	//int *generators = malloc(sizeof(int)*theProblem->nNode);
-//	int numberEdges = 0;
-//	Node *nodeA= edgeCurrent->a;
-//	Node *nodeB= edgeCurrent->b;
-//	/// 1) DFS from nodeA tot nodeB ////
-//	queue<int> myqueue;
-//	myqueue.push(nodeA->indice);
-//	
-//	while(!myqueue.empty())
-//	{
-//        if(myqueue.front() == nodeB->indice)
-//        {
-//        	found =1;// check pour dire qu'on a trouvé le node destination 
-//        	break;
-//        } 
-//	else
-//	{
-//		int currentNode=myqueue.front();// on va spliter ce node
-//        	myqueue.pop();
-//        	for (i = 0; i < theProblem->nodes[currentNode].degree ; i++)
-//            	{	
-//			myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
-//			generators[theProblem->nodes[currentNode].voisins[i]->indice]=currentNode;// TODO tc                 	
-//            	}
-//            }
-//    	}
-//    
-//	// sanity check
-//	if (found ==1)	
-//	{
-//		 cout << "on a found le chemin \n ";
-//	}
-//	else{
-//		cout << "ERROR: chemin not found in DFS \n";
-//	}
-//	
-//	/// 2) Recover path ////
-//	
-//	// la structure à remplir, (puis changer ordre pour les edges ?)
-//	//Chemin *chemin=malloc(sizeof(Chemin));
-//	Chemin *chemin=new Chemin[1];
-//	chemin->size=0;
-//	chemin->theChemin=NULL;
-//	int *reverse=new int[theProblem->nEdge];
-//	//malloc(theProblem->nEdge*sizeof(Edge));// on le rempli trop grand mais on va pas jusqu'au bout
-//	
-//	int k=nodeB->indice;						   	
-//	while( generators[k] != nodeA->indice)
-//	{// remplir reverse en parcourant le mapping
-//		
-//		// trouver l'indice de l'edge qui relie les nodes d'indices k et generators[k]:
-//		for(i=0; i< theProblem->nodes[k].degree; i++ )
-//		{
-//			if( (theProblem->nodes[k].incidentes[i]->a->indice == k &&
-//			     theProblem->nodes[k].incidentes[i]->b->indice == generators[k] ) || 
-//			     (theProblem->nodes[k].incidentes[i]->a->indice == generators[k] &&
-//			     theProblem->nodes[k].incidentes[i]->b->indice == k ) )
-//			{
-//				reverse[chemin->size]=theProblem->nodes[k].incidentes[i]->indice;
-//				break; 	
-//			}
-//		}
-//		chemin->size= chemin->size+1;	
-//		k=generators[k];
-//	}
-//	chemin->theChemin=new Edge*[chemin->size];
-//	//malloc(theChemin->size*sizeof(Edge));
-//	for(i=0; i<chemin->size; i++)
-//	{
-//		chemin->theChemin[i]=&(theProblem->edges[reverse[i]]);// theChemin c'est des pointeurs et reverse c'est des indices
-//	}
-	
-/* ON A PEUT ETRE PAS BESOIN DE RETOURNER LE CYCLE, DEPEND DES SIGNES de flots ETC, TODO à vérifier */	
-//	chemin->size=numberEdges;
-//	chemin->theChemin=malloc(numberEdges*sizeof(Edge));
-//	for(i=0; i<numberEdges; i++)
-//	{
-//		chemin->theChemin[i]=reverse[numberEdges-1-i];
-//	}
-	
-//	return chemin;
-//}
-
-
-
-////////////////////////// HAROLD'S PRATICE /////////////////////////////
-
-double stretchEdge(Edge *edgeCurrent, Edge **chemin, int length)
-{
-    double stretch = 0.0;
-    int i; 
-    for(i = 0; i < length; i++)
-    {
-        stretch = stretch + 1/(chemin[i]->weight);
-    }
-    stretch = stretch*(edgeCurrent->weight);
-    return stretch;
-
-    /*
-		edgeCurrent est un pointeur vers une edge dont on veut calculer le stretch.
-		chemin est un tableau dont les éléments sont des pointeurs de type Edge.
-		logiquement, le chemin appartient au tree et relie les deux extrémités de edgeCurrent.
-		La fonction devrait faire genre 10 lignes max j'ai l'impression :-)
-
-		Je ne sais pas si c'est eaxctement cette fonction là qu'on utilisera mais surement une version similaire
-		(peut être arguents un peu différent selon comme cela se passe aux autres etapes).
-		Ca devrait te permettre de voir un peu les structures qu'on a déjà et chipoter pas mal avec des pointeurs :p
-		Après tu peux regarder ce qu'il faut pour la suite et faire une fonction qui calcule les autres quantités necessaires genre
-		la résistance d'un chemin ou des trucs comme ça (voir article :-). Tiens moi au courant souvent et hésite pas
-		à me demander de te débloquer souvent, tu devrais attraper le truc pluc vite en faisant comme ça ;-)
-	*/
-}
-
-/* A METTRE A JOUR (en fontion de la structure theProblem)
-double stretchTree(Problem *theProblem, Tree *arbre)
-{
-    nEdge = theProblem->nEdge;
-    listEdges = theProblem->listEdges; A CHANGER
-
-    double stretch = 0;
-
-    for(i = 0; i < nEdge; i++)
-    {
-        edgeCurrent = listEdges[i];
-        chemin = ...  A CHANGER
-        length = ...  A CHANGER
-
-        stretch = stretch + stretchEdge(edgeCurrent, chemin, length);
-    }
-    return stretch;
-}
-*/
-
-
-
 
 
 
