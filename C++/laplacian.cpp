@@ -477,14 +477,16 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
 double stretchTree(Problem *theProblem)
 {
     int nEdge = theProblem->nEdge;
-    Edge *listEdges = theProblem->edges;
+    Edge *listEdges = theProblem->edges; // OK MAIS INUTILE. Je trouve ça plus clair de garder theProblem->edges (perso quoi)
 
     double stretch = 0.0;
 
     for(i = 0; i < nEdge; i++)
     {
         Edge *edgeCurrent = listEdges[i];
-        Chemin *theChemin = findCycle(edgeCurrent, theProblem);
+        Chemin *theChemin = findCycle(edgeCurrent, theProblem); // findCycle NE VA PAS SI l'EDGE EST DANS LE TREE.
+        							// DONC FAUDRAIT TESTER SI l'EDGE EST DANS LE TREE
+        							//  AVANT OU un truc comme ça
 
         stretch = stretch + stretchEdge(edgeCurrent, theChemin);
     }
@@ -510,18 +512,22 @@ double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 /* A VERIFIER */
 double* probaCompute(Problem *theProblem)
 {
-    Edge *edgesProblem = theProblem->edges;
+    Edge *edgesProblem = theProblem->edges; // OK MAIS INUTILE
 
-    Tree theTree = theProblem->theTree;
-    Edge **edgesTree = theTree->edgesTree;
+    Tree theTree = theProblem->theTree; // OK MAIS INUTILE
+    Edge **edgesTree = theTree->edgesTree; // OK MAIS INUTILE
 
     int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
 
-    double **probabilities = new double*[nEdgeOutTree];
+    double **probabilities = new double*[nEdgeOutTree]; // NOPE
+    // TODO: double *probabilities = new double*[nEdgeOutTree];
+    //REMARQUE: on s'en occupe pas encore trop maintenant mais c'est pas bien (je le fais pas partout non plus..). 
+    //Il faut free la mémorie qu'on déclare 
+    // manuellement (donc faire des delete dès qu'il y a des new)
 
     int edgesFound = 0;
 
-    for(int i = 0; i < theProblem->nEdge; i++)
+    for(int i = 0; i < theProblem->nEdge; i++) // PROBABLEMENT OK mais un peu barbare (ça arrive :p)
     {
         bool entered = false;
         for(int j = 0; j < (theProblem->nNode-1); j++)
@@ -560,8 +566,13 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
 
     Chemin *theChemin = findCycle(edgeCurrent, theProblem);
-    Edge **edgesChemin = theChemin->theChemin;
-
+    Edge **edgesChemin = theChemin->theChemin; // CELA PEUT MARCHER MAIS C'EST FOIREUX de mettre deux fois le nom theChemin
+    						// pour des trucs différents.
+    // J'aurai fait: 						
+    // Chemin *myChemin = findCycle(edgeCurrent, theProblem);
+    // et après tu fais myChemin->theChemin au lieu de edgesChemin :)
+    
+    
     double stretchE = stretchEdge(edgeCurrent, theChemin);
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
@@ -571,6 +582,8 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     }
     // TO BE CONTINUED
+    
+    // CONTINUONS :)
 
 /*
 	Tu as edgeCurrent qui t'as été donnée par la fonciton précédente. Tu calcule son stretch et tout si necessaire,
