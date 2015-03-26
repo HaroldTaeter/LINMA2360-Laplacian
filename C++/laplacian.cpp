@@ -19,6 +19,7 @@ Main function that runs the algorithm after initialization of the data
 void Solve(char *FileName)
 {
 	Problem *theProblem= createProblem(FileName);
+	printf("OK: Problem created \n");
 	Kruskal(theProblem);
 	int i; 
 //	for(i=0; i< theProblem->nNode-1; i++)
@@ -33,13 +34,14 @@ void Solve(char *FileName)
 
 	//Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 
-	Chemin *wayTest=findCycle( &theProblem->edges[3], theProblem );
-	printf("ok way \n");
-	printf("wayTest.size= %d \n", wayTest->size);
-	for(i=0; i<wayTest->size; i++)
-	{
-		printf("edge[%d].indice = %d \n", i, wayTest->theChemin[i]->indice);
-	}
+	//Chemin *wayTest=findCycle( &theProblem->edges[3], theProblem );
+	
+	//printf("ok way \n");
+	//printf("wayTest.size= %d \n", wayTest->size);
+//	for(i=0; i<wayTest->size; i++)
+//	{
+//		printf("edge[%d].indice = %d \n", i, wayTest->theChemin[i]->indice);
+//	}
 }
 
 
@@ -60,17 +62,18 @@ Problem *theProblem = new Problem[1];
 int i,j,trash;
 
 FILE* fichier = NULL;
-	int length;
-
-	fichier = fopen(FileName,"r+");
+int length;
+fichier = fopen(FileName,"r+");
 
 	if (fichier != NULL)
 	{
 		fseek(fichier,16,SEEK_SET);
 		fscanf(fichier,"%d",&theProblem->nNode);
 		int nNode=theProblem->nNode;
+		fseek(fichier,17,SEEK_CUR);
+		fscanf(fichier,"%d",&theProblem->nEdge);
 		
-		//printf("La longueur est %d\n",nNode);
+		printf("Nombre d'edges %d\n",theProblem->nEdge);
 
 
 		double **tableau = (double**) malloc(nNode*sizeof(double*));
@@ -96,44 +99,69 @@ FILE* fichier = NULL;
 	{
 		printf("Impossible d'ouvrir le fichier data.txt");
 	}
-int nNode=theProblem->nNode;
-int nEdgeGuess=nNode;// à adapter
-theProblem->nodes=new Node[nNode];
-theProblem->edges=new Edge[nEdgeGuess];
-int nEdge=0; // TODO à mettre à jour !
+	for(i=0;i<theProblem->nNode; i++)
+	{
+		for(j=0; j<theProblem->nNode; j++)
+		{
+			printf("%f", theProblem->Weights[i][j]);
+		}
+	printf("\n");
+	
+	}
+	
+	
+//int nNode=theProblem->nNode;
+theProblem->nodes=new Node[theProblem->nNode];
+theProblem->edges=new Edge[theProblem->nEdge];
+int nEdgeCurrent=0; // à mettre à jour !
+int nVoisins=0;
+int *nVoisinsCurrent= new int[theProblem->nNode];// nombre de voisins déjà ajouté au node[i]
 
-for(i = 0; i < nNode; i++)
-  {
-  	// update node[i]
+// pre calcul du nombre de voisins= barbare :-)
+for(i = 0; i<theProblem->nNode; i++)
+{
+	nVoisinsCurrent[i]=0;
+	for(j=0; j<theProblem->nNode; j++)
+	{
+		if(theProblem->Weights[i][j]!=0.0) 
+		{
+			nVoisins=nVoisins+1;
+		}
+		
+	}
+	// init node[i]
   	theProblem->nodes[i].indice=i; 
-  	theProblem->nodes[i].degree=0;
-  	// INCIDENTES ? :p
+  	theProblem->nodes[i].degree=nVoisins;
+  	theProblem->nodes[i].voisins = new Node*[nVoisins];
+ 	theProblem->nodes[i].incidentes = new Edge*[nVoisins];
+	nVoisins=0;
+}
+
+for(i = 0; i < theProblem->nNode; i++)
+  {  	
       for(j = 0; j < i; j++)
       {
   	     if(theProblem->Weights[i][j]!=0.0)
   	     {
-  	     	// TODO create edge et nodes etc ..
-  	     	// pas besoin de voisins, on a incidentes
-  	     	// 
+  	     	// create edge[i,j] OK
+  	     	theProblem->edges[nEdgeCurrent].indice=nEdgeCurrent;
+  	     	theProblem->edges[nEdgeCurrent].a=&theProblem->nodes[i];
+  	     	theProblem->edges[nEdgeCurrent].b=&theProblem->nodes[j];
+  	     	theProblem->edges[nEdgeCurrent].weight=theProblem->Weights[i][j];
+  	     	theProblem->edges[nEdgeCurrent].f=0.0;
   	     	
-  	     	
+  	     
+  	     	// update node[i]
+  	     	theProblem->nodes[i].voisins[nVoisinsCurrent[i]]=&theProblem->nodes[j];
+  	     	theProblem->nodes[i].incidentes[nVoisinsCurrent[i]]=&theProblem->edges[nEdgeCurrent];
+  	     	nVoisinsCurrent[i]++;
   	     	
   	     	// update node[j]
+  	     	theProblem->nodes[j].voisins[nVoisinsCurrent[j]]=&theProblem->nodes[i];
+  	     	theProblem->nodes[j].incidentes[nVoisinsCurrent[j]]=&theProblem->edges[nEdgeCurrent];
+  	     	nVoisinsCurrent[j]++;
   	     	
-  	     	
-  	     	
-  	     	// update edge[i,j]
-  	     	if(nEdge >= nEdgeGuess)
-  	     	{
-  	     		// TODO realloc car on a plus de place. Ne va pas arriver tant que m<n dans le graphe
-  	     	}
-  	     	theProblem->edges[nEdge].indice=nEdge;
-  	     	theProblem->edges[nEdge].a=&theProblem->nodes[i];
-  	     	theProblem->edges[nEdge].b=&theProblem->nodes[j];
-  	     	theProblem->edges[nEdge].weight=&theProblem->Weights[i][j];
-  	     	theProblem->edges[nEdge].f=0.0;
-  	     	nEdge++;
-  	     
+  	     	nEdgeCurrent++;
   	     }
       }
   }
@@ -143,96 +171,96 @@ for(i = 0; i < nNode; i++)
 //theProblem->nEdge=nEdge;
 
 //NODE0
-theProblem->nodes[0].indice=0;
-theProblem->nodes[0].degree=1;
-theProblem->nodes[0].voisins=new Node*[1];
-theProblem->nodes[0].voisins[0]=&theProblem->nodes[1];
-//NODE1
-theProblem->nodes[1].indice=1;
-theProblem->nodes[1].degree=3;
-theProblem->nodes[1].voisins=new Node*[3];
-theProblem->nodes[1].voisins[0]=&theProblem->nodes[0];
-theProblem->nodes[1].voisins[1]=&theProblem->nodes[2];
-theProblem->nodes[1].voisins[2]=&theProblem->nodes[3];
-//NODE2
-theProblem->nodes[2].indice=2;
-theProblem->nodes[2].degree=2;
-theProblem->nodes[2].voisins=new Node*[2];// degree*sizeof(Node)
-theProblem->nodes[2].voisins[0]=&theProblem->nodes[1];
-theProblem->nodes[2].voisins[1]=&theProblem->nodes[3];
-//NODE3
-theProblem->nodes[3].indice=3;
-theProblem->nodes[3].degree=2;
-theProblem->nodes[3].voisins=new Node*[2];// degree*sizeof(Node)
-theProblem->nodes[3].voisins[0]=&theProblem->nodes[1];
-theProblem->nodes[3].voisins[1]=&theProblem->nodes[2];
+//theProblem->nodes[0].indice=0;
+//theProblem->nodes[0].degree=1;
+//theProblem->nodes[0].voisins=new Node*[1];
+//theProblem->nodes[0].voisins[0]=&theProblem->nodes[1];
+////NODE1
+//theProblem->nodes[1].indice=1;
+//theProblem->nodes[1].degree=3;
+//theProblem->nodes[1].voisins=new Node*[3];
+//theProblem->nodes[1].voisins[0]=&theProblem->nodes[0];
+//theProblem->nodes[1].voisins[1]=&theProblem->nodes[2];
+//theProblem->nodes[1].voisins[2]=&theProblem->nodes[3];
+////NODE2
+//theProblem->nodes[2].indice=2;
+//theProblem->nodes[2].degree=2;
+//theProblem->nodes[2].voisins=new Node*[2];// degree*sizeof(Node)
+//theProblem->nodes[2].voisins[0]=&theProblem->nodes[1];
+//theProblem->nodes[2].voisins[1]=&theProblem->nodes[3];
+////NODE3
+//theProblem->nodes[3].indice=3;
+//theProblem->nodes[3].degree=2;
+//theProblem->nodes[3].voisins=new Node*[2];// degree*sizeof(Node)
+//theProblem->nodes[3].voisins[0]=&theProblem->nodes[1];
+//theProblem->nodes[3].voisins[1]=&theProblem->nodes[2];
 
-//EDGE0
-theProblem->edges[0].indice=0;
-theProblem->edges[0].weight=12.0;
-theProblem->edges[0].f=0.0;
-theProblem->edges[0].a=&theProblem->nodes[0];
-theProblem->edges[0].b=&theProblem->nodes[1];
-//EDGE1
-theProblem->edges[1].indice=1;
-theProblem->edges[1].weight=1.0;
-theProblem->edges[1].f=0.0;
-theProblem->edges[1].a=&theProblem->nodes[1];
-theProblem->edges[1].b=&theProblem->nodes[2];
-//EDGE2
-theProblem->edges[2].indice=2;
-theProblem->edges[2].weight=7.0;
-theProblem->edges[2].f=0.0;
-theProblem->edges[2].a=&theProblem->nodes[1];
-theProblem->edges[2].b=&theProblem->nodes[3];
-//EDGE3
-theProblem->edges[3].indice=3;
-theProblem->edges[3].weight=20.0;
-theProblem->edges[3].f=0.0;
-theProblem->edges[3].a=&theProblem->nodes[2];
-theProblem->edges[3].b=&theProblem->nodes[3];
+////EDGE0
+//theProblem->edges[0].indice=0;
+//theProblem->edges[0].weight=12.0;
+//theProblem->edges[0].f=0.0;
+//theProblem->edges[0].a=&theProblem->nodes[0];
+//theProblem->edges[0].b=&theProblem->nodes[1];
+////EDGE1
+//theProblem->edges[1].indice=1;
+//theProblem->edges[1].weight=1.0;
+//theProblem->edges[1].f=0.0;
+//theProblem->edges[1].a=&theProblem->nodes[1];
+//theProblem->edges[1].b=&theProblem->nodes[2];
+////EDGE2
+//theProblem->edges[2].indice=2;
+//theProblem->edges[2].weight=7.0;
+//theProblem->edges[2].f=0.0;
+//theProblem->edges[2].a=&theProblem->nodes[1];
+//theProblem->edges[2].b=&theProblem->nodes[3];
+////EDGE3
+//theProblem->edges[3].indice=3;
+//theProblem->edges[3].weight=20.0;
+//theProblem->edges[3].f=0.0;
+//theProblem->edges[3].a=&theProblem->nodes[2];
+//theProblem->edges[3].b=&theProblem->nodes[3];
 
 
 //////////// Adjacency Matrix //////////////////
 
-theProblem->Weights[0][0]=0.0;
-theProblem->Weights[1][1]=0.0;
-theProblem->Weights[2][2]=0.0;
-theProblem->Weights[3][3]=0.0;
+//theProblem->Weights[0][0]=0.0;
+//theProblem->Weights[1][1]=0.0;
+//theProblem->Weights[2][2]=0.0;
+//theProblem->Weights[3][3]=0.0;
 
-theProblem->Weights[0][1]=12.0;
-theProblem->Weights[1][0]=12.0;
-theProblem->Weights[0][2]=0.0;
-theProblem->Weights[2][0]=0.0;
-theProblem->Weights[0][3]=0.0;
-theProblem->Weights[3][0]=0.0;
+//theProblem->Weights[0][1]=12.0;
+//theProblem->Weights[1][0]=12.0;
+//theProblem->Weights[0][2]=0.0;
+//theProblem->Weights[2][0]=0.0;
+//theProblem->Weights[0][3]=0.0;
+//theProblem->Weights[3][0]=0.0;
 
-theProblem->Weights[1][2]=1.0;
-theProblem->Weights[2][1]=1.0;
-theProblem->Weights[1][3]=7.0;
-theProblem->Weights[3][1]=7.0;
+//theProblem->Weights[1][2]=1.0;
+//theProblem->Weights[2][1]=1.0;
+//theProblem->Weights[1][3]=7.0;
+//theProblem->Weights[3][1]=7.0;
 
-theProblem->Weights[2][3]=20.0;
-theProblem->Weights[3][2]=20.0;
+//theProblem->Weights[2][3]=20.0;
+//theProblem->Weights[3][2]=20.0;
 
-//////////// Incidentes Edges /////////////////
+////////////// Incidentes Edges /////////////////
 
-theProblem->nodes[0].incidentes= new Edge*[1];
-theProblem->nodes[1].incidentes= new Edge*[3];
-theProblem->nodes[2].incidentes= new Edge*[2];
-theProblem->nodes[3].incidentes= new Edge*[2];
+//theProblem->nodes[0].incidentes= new Edge*[1];
+//theProblem->nodes[1].incidentes= new Edge*[3];
+//theProblem->nodes[2].incidentes= new Edge*[2];
+//theProblem->nodes[3].incidentes= new Edge*[2];
 
-theProblem->nodes[0].incidentes[0]=&theProblem->edges[0];
+//theProblem->nodes[0].incidentes[0]=&theProblem->edges[0];
 
-theProblem->nodes[1].incidentes[0]=&theProblem->edges[0];
-theProblem->nodes[1].incidentes[1]=&theProblem->edges[1];
-theProblem->nodes[1].incidentes[2]=&theProblem->edges[2];
+//theProblem->nodes[1].incidentes[0]=&theProblem->edges[0];
+//theProblem->nodes[1].incidentes[1]=&theProblem->edges[1];
+//theProblem->nodes[1].incidentes[2]=&theProblem->edges[2];
 
-theProblem->nodes[2].incidentes[0]=&theProblem->edges[1];
-theProblem->nodes[2].incidentes[1]=&theProblem->edges[3];
+//theProblem->nodes[2].incidentes[0]=&theProblem->edges[1];
+//theProblem->nodes[2].incidentes[1]=&theProblem->edges[3];
 
-theProblem->nodes[3].incidentes[0]=&theProblem->edges[2];
-theProblem->nodes[3].incidentes[1]=&theProblem->edges[3];
+//theProblem->nodes[3].incidentes[0]=&theProblem->edges[2];
+//theProblem->nodes[3].incidentes[1]=&theProblem->edges[3];
 
 Tree arbreNew;
 arbreNew.edgesTree=NULL;
@@ -275,8 +303,8 @@ void Kruskal(Problem *theProblem)
     //  Edge **treeIndex= new Edge*[theProblem->nNode-1];// ((theProblem->nNode-1)*sizeof(int));
     int compteur=0;
 //    delete[] treeIndex;
-//    delete x;
-//    x = new int;
+//    
+//    x = new int; => delete x;
     while(ne <theProblem->nNode)
     	 {
     		for(i=0,min=Wmax;i<n;i++)
@@ -384,7 +412,6 @@ return index;
 /////////////////////////////////////////////////////////////////////
 /////////////////////////// DFS & Cie //////////////////////////////
 
-
 /*
 Function findCycle
 Returns the Chemin in the tree that goes from both ends of the edgeCurrent
@@ -456,131 +483,131 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////
 
 
-// ON Continue Jean Pierre ! ///
+//// ON Continue Jean Pierre ! ///
 
-/* A VERIFIER */
-double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
-{
-    double stretch = 0.0;
-    int length = Chemin->size;
+///* A VERIFIER */
+//double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
+//{
+//    double stretch = 0.0;
+//    int length = Chemin->size;
 
-    for(i = 0; i < length; i++)
-    {
-        stretch = stretch + 1/(Chemin->theChemin[i]->weight);
-    }
-    stretch = stretch*(edgeCurrent->weight);
+//    for(i = 0; i < length; i++)
+//    {
+//        stretch = stretch + 1/(Chemin->theChemin[i]->weight);
+//    }
+//    stretch = stretch*(edgeCurrent->weight);
 
-    return stretch;
-}
+//    return stretch;
+//}
 
-/* A VERIFIER */
-double stretchTree(Problem *theProblem)
-{
-    int nEdge = theProblem->nEdge;
-    Edge *listEdges = theProblem->edges; // OK MAIS INUTILE. Je trouve ça plus clair de garder theProblem->edges (perso quoi)
+///* A VERIFIER */
+//double stretchTree(Problem *theProblem)
+//{
+//    int nEdge = theProblem->nEdge;
+//    Edge *listEdges = theProblem->edges; // OK MAIS INUTILE. Je trouve ça plus clair de garder theProblem->edges (perso quoi)
 
-    double stretch = 0.0;
+//    double stretch = 0.0;
 
-    for(i = 0; i < nEdge; i++)
-    {
-        Edge *edgeCurrent = listEdges[i];
-        Chemin *theChemin = findCycle(edgeCurrent, theProblem); // findCycle NE VA PAS SI l'EDGE EST DANS LE TREE.
-        							// DONC FAUDRAIT TESTER SI l'EDGE EST DANS LE TREE
-        							//  AVANT OU un truc comme ça
+//    for(i = 0; i < nEdge; i++)
+//    {
+//        Edge *edgeCurrent = listEdges[i];
+//        Chemin *theChemin = findCycle(edgeCurrent, theProblem); // findCycle NE VA PAS SI l'EDGE EST DANS LE TREE.
+//        							// DONC FAUDRAIT TESTER SI l'EDGE EST DANS LE TREE
+//        							//  AVANT OU un truc comme ça
 
-        stretch = stretch + stretchEdge(edgeCurrent, theChemin);
-    }
-    return stretch;
-}
+//        stretch = stretch + stretchEdge(edgeCurrent, theChemin);
+//    }
+//    return stretch;
+//}
 
-/* A VERIFIER */
-double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
-{
-    Chemin *theChemin = findCycle(edgeCurrent, theProblem);
-    double stretchE = stretchEdge(edgeCurrent, theChemin);
-    double stretchT = stretchTree(theProblem);
-    double re = 1/(edgeCurrent->weight);
-    double Re = re*(1+stretchE);
-    int m = theProblem->nEdge;
-    int n = theProblem->nNode;
-    double CondNum = stretchT + m - 2*n + 2.0;
-    double probability = (1/CondNum)*(Re/re);
+///* A VERIFIER */
+//double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
+//{
+//    Chemin *theChemin = findCycle(edgeCurrent, theProblem);
+//    double stretchE = stretchEdge(edgeCurrent, theChemin);
+//    double stretchT = stretchTree(theProblem);
+//    double re = 1/(edgeCurrent->weight);
+//    double Re = re*(1+stretchE);
+//    int m = theProblem->nEdge;
+//    int n = theProblem->nNode;
+//    double CondNum = stretchT + m - 2*n + 2.0;
+//    double probability = (1/CondNum)*(Re/re);
 
-    return probability;
-}
+//    return probability;
+//}
 
-/* A VERIFIER */
-double* probaCompute(Problem *theProblem)
-{
-    Edge *edgesProblem = theProblem->edges; // OK MAIS INUTILE
+///* A VERIFIER */
+//double* probaCompute(Problem *theProblem)
+//{
+//    Edge *edgesProblem = theProblem->edges; // OK MAIS INUTILE
 
-    Tree theTree = theProblem->theTree; // OK MAIS INUTILE
-    Edge **edgesTree = theTree->edgesTree; // OK MAIS INUTILE
+//    Tree theTree = theProblem->theTree; // OK MAIS INUTILE
+//    Edge **edgesTree = theTree->edgesTree; // OK MAIS INUTILE
 
-    int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
+//    int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
 
-    double **probabilities = new double*[nEdgeOutTree]; // NOPE
-    // TODO: double *probabilities = new double*[nEdgeOutTree];
-    //REMARQUE: on s'en occupe pas encore trop maintenant mais c'est pas bien (je le fais pas partout non plus..). 
-    //Il faut free la mémorie qu'on déclare 
-    // manuellement (donc faire des delete dès qu'il y a des new)
+//    double *probabilities = new double*[nEdgeOutTree]; // NOPE
+//    // TODO: double *probabilities = new double*[nEdgeOutTree];
+//    //REMARQUE: on s'en occupe pas encore trop maintenant mais c'est pas bien (je le fais pas partout non plus..). 
+//    //Il faut free la mémorie qu'on déclare 
+//    // manuellement (donc faire des delete dès qu'il y a des new)
 
-    int edgesFound = 0;
+//    int edgesFound = 0;
 
-    for(int i = 0; i < theProblem->nEdge; i++) // PROBABLEMENT OK mais un peu barbare (ça arrive :p)
-    {
-        bool entered = false;
-        for(int j = 0; j < (theProblem->nNode-1); j++)
-        {
-            if(edgesProblem[i]->indice == edgesTree[j]->indice)
-            {
-                entered = true;
-                break;
-            }
-        }
-        if(!entered)
-        {
-            probabilities[edgesFound] = probabilityEdge(edgesProblem[i], theProblem);
-            edgesFound = edgesFound + 1;
-        }
-    }
+//    for(int i = 0; i < theProblem->nEdge; i++) // PROBABLEMENT OK mais un peu barbare (ça arrive :p)
+//    {
+//        bool entered = false;
+//        for(int j = 0; j < (theProblem->nNode-1); j++)
+//        {
+//            if(edgesProblem[i]->indice == edgesTree[j]->indice)
+//            {
+//                entered = true;
+//                break;
+//            }
+//        }
+//        if(!entered)
+//        {
+//            probabilities[edgesFound] = probabilityEdge(edgesProblem[i], theProblem);
+//            edgesFound = edgesFound + 1;
+//        }
+//    }
 
-    return probabilities;
-}
+//    return probabilities;
+//}
 
-/* A VERIFIER */
-int iterationsK(Problem *theProblem, double eps)
-{
-    double stretchT = stretchTree(theProblem);
-    int m = theProblem->nEdge;
-    int n = theProblem->nNode;
-    double CondNum = stretchT + m - 2*n + 2;
-    int K = (int)ceil(CondNum*log(stretchT*CondNum/eps));
+///* A VERIFIER */
+//int iterationsK(Problem *theProblem, double eps)
+//{
+//    double stretchT = stretchTree(theProblem);
+//    int m = theProblem->nEdge;
+//    int n = theProblem->nNode;
+//    double CondNum = stretchT + m - 2*n + 2;
+//    int K = (int)ceil(CondNum*log(stretchT*CondNum/eps));
 
-    return K;
-}
+//    return K;
+//}
 
-/* A VERIFIER */
-void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
-{
-    double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
+///* A VERIFIER */
+//void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
+//{
+//    double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
 
-    Chemin *theChemin = findCycle(edgeCurrent, theProblem);
-    Edge **edgesChemin = theChemin->theChemin; // CELA PEUT MARCHER MAIS C'EST FOIREUX de mettre deux fois le nom theChemin
-    						// pour des trucs différents.
-    // J'aurai fait: 						
-    // Chemin *myChemin = findCycle(edgeCurrent, theProblem);
-    // et après tu fais myChemin->theChemin au lieu de edgesChemin :)
-    
-    
-    double stretchE = stretchEdge(edgeCurrent, theChemin);
-    double re = 1/(edgeCurrent->weight);
-    double Re = re*(1+stretchE);
+//    Chemin *theChemin = findCycle(edgeCurrent, theProblem);
+//    Edge **edgesChemin = theChemin->theChemin; // CELA PEUT MARCHER MAIS C'EST FOIREUX de mettre deux fois le nom theChemin
+//    						// pour des trucs différents.
+//    // J'aurai fait: 						
+//    // Chemin *myChemin = findCycle(edgeCurrent, theProblem);
+//    // et après tu fais myChemin->theChemin au lieu de edgesChemin :)
+//    
+//    
+//    double stretchE = stretchEdge(edgeCurrent, theChemin);
+//    double re = 1/(edgeCurrent->weight);
+//    double Re = re*(1+stretchE);
 
-    for(i = 0; i < theChemin->size; i++)
-    {
-        Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
-    }
+//    for(i = 0; i < theChemin->size; i++)
+//    {
+//        Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
+//    }
     // TO BE CONTINUED
     
     // CONTINUONS :)
@@ -604,7 +631,7 @@ Il est possible que la fonction ne fasse que 15 lignes, c'est un peu celle où o
 
 
 // GO GO GO
-}
+//}
 
 
 
