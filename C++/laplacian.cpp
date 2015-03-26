@@ -44,6 +44,18 @@ void Solve(char *FileName)
 //	}
 }
 
+void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
+{
+	Chemin* path= findPath(indexNodeA, indexNodeB, theProblem);
+	int i; 
+	for(i=0; i< path->size; i++)
+	{
+		path->theChemin[i]->f=1.0;
+	}// TODO il faut s'occuper du sens du flow I guess
+
+}
+
+
 
 		  /////////////////////////////////////////////////////////////////////////
 		 //////////////////////// Initialisation /////////////////////////////////
@@ -153,6 +165,7 @@ for(i = 0; i < theProblem->nNode; i++)
   	     	theProblem->edges[nEdgeCurrent].b=&theProblem->nodes[j];
   	     	theProblem->edges[nEdgeCurrent].weight=theProblem->Weights[i][j];
   	     	theProblem->edges[nEdgeCurrent].f=0.0;
+  	     	theProblem->edges[nEdgeCurrent].SET_FLOW=false;
   	     	
   	     
   	     	// update node[i]
@@ -170,102 +183,6 @@ for(i = 0; i < theProblem->nNode; i++)
   	     }
       }
   }
-
-
-//int nEdge=4;
-//theProblem->nEdge=nEdge;
-
-//NODE0
-//theProblem->nodes[0].indice=0;
-//theProblem->nodes[0].degree=1;
-//theProblem->nodes[0].voisins=new Node*[1];
-//theProblem->nodes[0].voisins[0]=&theProblem->nodes[1];
-////NODE1
-//theProblem->nodes[1].indice=1;
-//theProblem->nodes[1].degree=3;
-//theProblem->nodes[1].voisins=new Node*[3];
-//theProblem->nodes[1].voisins[0]=&theProblem->nodes[0];
-//theProblem->nodes[1].voisins[1]=&theProblem->nodes[2];
-//theProblem->nodes[1].voisins[2]=&theProblem->nodes[3];
-////NODE2
-//theProblem->nodes[2].indice=2;
-//theProblem->nodes[2].degree=2;
-//theProblem->nodes[2].voisins=new Node*[2];// degree*sizeof(Node)
-//theProblem->nodes[2].voisins[0]=&theProblem->nodes[1];
-//theProblem->nodes[2].voisins[1]=&theProblem->nodes[3];
-////NODE3
-//theProblem->nodes[3].indice=3;
-//theProblem->nodes[3].degree=2;
-//theProblem->nodes[3].voisins=new Node*[2];// degree*sizeof(Node)
-//theProblem->nodes[3].voisins[0]=&theProblem->nodes[1];
-//theProblem->nodes[3].voisins[1]=&theProblem->nodes[2];
-
-////EDGE0
-//theProblem->edges[0].indice=0;
-//theProblem->edges[0].weight=12.0;
-//theProblem->edges[0].f=0.0;
-//theProblem->edges[0].a=&theProblem->nodes[0];
-//theProblem->edges[0].b=&theProblem->nodes[1];
-////EDGE1
-//theProblem->edges[1].indice=1;
-//theProblem->edges[1].weight=1.0;
-//theProblem->edges[1].f=0.0;
-//theProblem->edges[1].a=&theProblem->nodes[1];
-//theProblem->edges[1].b=&theProblem->nodes[2];
-////EDGE2
-//theProblem->edges[2].indice=2;
-//theProblem->edges[2].weight=7.0;
-//theProblem->edges[2].f=0.0;
-//theProblem->edges[2].a=&theProblem->nodes[1];
-//theProblem->edges[2].b=&theProblem->nodes[3];
-////EDGE3
-//theProblem->edges[3].indice=3;
-//theProblem->edges[3].weight=20.0;
-//theProblem->edges[3].f=0.0;
-//theProblem->edges[3].a=&theProblem->nodes[2];
-//theProblem->edges[3].b=&theProblem->nodes[3];
-
-
-//////////// Adjacency Matrix //////////////////
-
-//theProblem->Weights[0][0]=0.0;
-//theProblem->Weights[1][1]=0.0;
-//theProblem->Weights[2][2]=0.0;
-//theProblem->Weights[3][3]=0.0;
-
-//theProblem->Weights[0][1]=12.0;
-//theProblem->Weights[1][0]=12.0;
-//theProblem->Weights[0][2]=0.0;
-//theProblem->Weights[2][0]=0.0;
-//theProblem->Weights[0][3]=0.0;
-//theProblem->Weights[3][0]=0.0;
-
-//theProblem->Weights[1][2]=1.0;
-//theProblem->Weights[2][1]=1.0;
-//theProblem->Weights[1][3]=7.0;
-//theProblem->Weights[3][1]=7.0;
-
-//theProblem->Weights[2][3]=20.0;
-//theProblem->Weights[3][2]=20.0;
-
-////////////// Incidentes Edges /////////////////
-
-//theProblem->nodes[0].incidentes= new Edge*[1];
-//theProblem->nodes[1].incidentes= new Edge*[3];
-//theProblem->nodes[2].incidentes= new Edge*[2];
-//theProblem->nodes[3].incidentes= new Edge*[2];
-
-//theProblem->nodes[0].incidentes[0]=&theProblem->edges[0];
-
-//theProblem->nodes[1].incidentes[0]=&theProblem->edges[0];
-//theProblem->nodes[1].incidentes[1]=&theProblem->edges[1];
-//theProblem->nodes[1].incidentes[2]=&theProblem->edges[2];
-
-//theProblem->nodes[2].incidentes[0]=&theProblem->edges[1];
-//theProblem->nodes[2].incidentes[1]=&theProblem->edges[3];
-
-//theProblem->nodes[3].incidentes[0]=&theProblem->edges[2];
-//theProblem->nodes[3].incidentes[1]=&theProblem->edges[3];
 
 Tree arbreNew;
 arbreNew.edgesTree=NULL;
@@ -418,31 +335,23 @@ return index;
 /////////////////////////// DFS & Cie //////////////////////////////
 
 /*
-Function findCycle
-Returns the Chemin in the tree that goes from both ends of the edgeCurrent
-@pre: A pointer to an off-tree Edge
-@post: A pointer to a Chemin structure that goes from the Node edgeCurrent->b to the Node edgeCurrent->a
+Renvoie le  chemin qui relie les nodes d'indices IndexNodeA et IndexNodeB
+Attention, on suppose que l'edge A-B (si elle existe), n'est PAS dans l'arbre !! 
 */
-Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
+Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 {
+
 	Chemin *path= new Chemin[1];
 
 	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
 
 	int numberEdges = 0;
-	Node *nodeA= edgeCurrent->a;
-	Node *nodeB= edgeCurrent->b;
-
-	if( (theProblem->theTree.predecessor[nodeA->indice]==nodeB->indice)||(theProblem->theTree.predecessor[nodeB->indice]==nodeA->indice) )
-    {
-        path->size=1;
-        path->theChemin[0]=edgeCurrent;
-        return path;
-    }
-
+	Node *nodeA= &theProblem->nodes[nodeA];
+	Node *nodeB= &theProblem->nodes[nodeB];
+	
 	int nextB=0;
-	int currentB=nodeB->indice;
-	int currentA=nodeA->indice;
+	int currentB=IndexNodeA;
+	int currentA=IndexNodeB;
 	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
 	tabA[0]=currentA;
 	int sizeB=0;
@@ -455,10 +364,7 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 	while(check)
 	{
 		int nextB=theProblem->theTree.predecessor[currentB];
-		printf("nextB= %d \n", nextB);
 		int nextA=theProblem->theTree.predecessor[currentA];
-
-		printf("nextA= %d \n", nextA);
 
 		path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
 		sizeB++;
@@ -475,8 +381,6 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 			}
 		}
 
-		//if(stopNode >=0) break;
-
 		currentA=nextA;
 		currentB=nextB;
 	}
@@ -489,6 +393,34 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 	}
 	delete[] tabA;
 	path->size=count+sizeB;
+	return path;
+
+}
+
+
+/*
+Function findCycle
+Returns the Chemin in the tree that goes from both ends of the edgeCurrent
+@pre: A pointer to an off-tree Edge
+@post: A pointer to a Chemin structure that goes from the Node edgeCurrent->b to the Node edgeCurrent->a
+*/
+Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
+{
+	Chemin *path= new Chemin[1];
+
+	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
+	Node *nodeA= edgeCurrent->a;
+	Node *nodeB= edgeCurrent->b;
+	
+	if( (theProblem->theTree.predecessor[nodeA->indice]==nodeB->indice)
+		||(theProblem->theTree.predecessor[nodeB->indice]==nodeA->indice) )
+    {// si l'edge est dans le tree
+        path->size=1;
+        path->theChemin[0]=edgeCurrent;
+        return path;
+    }
+
+	path=findPath(edgeCurrent->a->indice,edgeCurrent->b->indice, theProblem);
 	return path;
 
 }
@@ -519,7 +451,7 @@ double stretchTree(Problem *theProblem)
 
     for(int i = 0; i < theProblem->nEdge; i++)
     {
-        Edge *edgeCurrent = theProblem->edges[i];
+        Edge *edgeCurrent = &theProblem->edges[i];
         Chemin *theChemin = findCycle(edgeCurrent, theProblem);
         stretch = stretch + stretchEdge(edgeCurrent, theChemin);
     }
@@ -547,7 +479,7 @@ double* probaCompute(Problem *theProblem)
 {
     int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
 
-    double *probabilities = new double*[nEdgeOutTree];
+    double *probabilities = new double[nEdgeOutTree];
 
     int edgesFound = 0;
 
@@ -564,7 +496,7 @@ double* probaCompute(Problem *theProblem)
         }
         if(!entered)
         {
-            probabilities[edgesFound] = probabilityEdge(theProblem->edges[i], theProblem);
+            probabilities[edgesFound] = probabilityEdge(&theProblem->edges[i], theProblem);
             edgesFound = edgesFound + 1;
         }
     }
