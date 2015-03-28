@@ -130,7 +130,7 @@ for(i = 0; i < nNode; i++)
   	     	theProblem->edges[nEdge].indice=nEdge;
   	     	theProblem->edges[nEdge].a=&theProblem->nodes[i];
   	     	theProblem->edges[nEdge].b=&theProblem->nodes[j];
-  	     	theProblem->edges[nEdge].weight=&theProblem->Weights[i][j];
+  	     	theProblem->edges[nEdge].weight=theProblem->Weights[i][j];
   	     	theProblem->edges[nEdge].f=0.0;
   	     	nEdge++;
 
@@ -488,9 +488,8 @@ double stretchTree(Problem *theProblem)
 
     for(int i = 0; i < theProblem->nEdge; i++)
     {
-        Edge *edgeCurrent = theProblem->edges[i];
-        Chemin *theChemin = findCycle(edgeCurrent, theProblem);
-        stretch = stretch + stretchEdge(edgeCurrent, theChemin);
+        Chemin *theChemin = findCycle(&theProblem->edges[i], theProblem);
+        stretch = stretch + stretchEdge(&theProblem->edges[i], theChemin);
     }
     return stretch;
 }
@@ -516,7 +515,7 @@ double* probaCompute(Problem *theProblem)
 {
     int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
 
-    double *probabilities = new double*[nEdgeOutTree];
+    double *probabilities = new double[nEdgeOutTree];
 
     int edgesFound = 0;
 
@@ -533,7 +532,7 @@ double* probaCompute(Problem *theProblem)
         }
         if(!entered)
         {
-            probabilities[edgesFound] = probabilityEdge(theProblem->edges[i], theProblem);
+            probabilities[edgesFound] = probabilityEdge(&theProblem->edges[i], theProblem);
             edgesFound = edgesFound + 1;
         }
     }
