@@ -30,7 +30,6 @@ double weight;
 double f; 
 Node *a;
 Node *b;
-bool SET_FLOW;
 };
 
 typedef struct Tree Tree;

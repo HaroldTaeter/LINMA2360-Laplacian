@@ -1,0 +1,8 @@
+%
+% Laplacian: 
+% generate b vector
+%
+
+m=10;
+b=zeros
+

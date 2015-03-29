@@ -14,7 +14,7 @@ void Solve(char *FileName);
 
 int main(void)
 {   		
-       char *FileName="data2.txt";
+       char *FileName="data.txt";
        Solve(FileName);
        //exit(0);
 }
