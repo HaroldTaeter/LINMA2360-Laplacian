@@ -521,12 +521,7 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
 
     Chemin *myChemin = findCycle(edgeCurrent, theProblem);
-    Edge **edgesChemin = myChemin->theChemin; // CELA PEUT MARCHER MAIS C'EST FOIREUX de mettre deux fois le nom theChemin
-    						// pour des trucs différents.
-    // J'aurai fait:
-    // Chemin *myChemin = findCycle(edgeCurrent, theProblem);
-    // et après tu fais myChemin->theChemin au lieu de edgesChemin :)
-
+    Edge **edgesChemin = myChemin->theChemin;
 
     double stretchE = stretchEdge(edgeCurrent, myChemin);
     double re = 1/(edgeCurrent->weight);
@@ -536,10 +531,24 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
     {
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     }
-}
-    // TO BE CONTINUED
 
-    // CONTINUONS :)
+    edgeCurrent->f = edgeCurrent->f - Delta/Re;
+
+    int indiceCurrent = edgeCurrent->b->indice;
+    for(int i = 0; i < myChemin->size; i++)
+    {
+        if(indiceCurrent == edgesChemin[i]->a->indice)
+        {
+            edgesChemin[i]->f = edgesChemin[i]->f - Delta/Re;
+            indiceCurrent = edgesChemin[i]->b->indice;
+        }
+        else
+        {
+            edgesChemin[i]->f = edgesChemin[i]->f + Delta/Re;
+            indiceCurrent = edgesChemin[i]->a->indice;
+        }
+    }
+}
 
 /*
 	Tu as edgeCurrent qui t'as été donnée par la fonciton précédente. Tu calcule son stretch et tout si necessaire,
