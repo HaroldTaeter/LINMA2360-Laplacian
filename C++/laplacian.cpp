@@ -476,9 +476,9 @@ double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 /* A VERIFIER */
 double* probaCompute(Problem *theProblem)
 {
-    int nEdgeOutTree = theProblem->nEdge - (theProblem->nNode-1);
+    int nEdgesOffTree = theProblem->nEdge - (theProblem->nNode-1);
 
-    double *probabilities = new double[nEdgeOutTree];
+    double *probabilities = new double[nEdgesOffTree];
 
     int edgesFound = 0;
 
@@ -548,6 +548,31 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
             indiceCurrent = edgesChemin[i]->a->indice;
         }
     }
+}
+
+/* A VERIFIER */
+Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
+{
+    int nEdgesOffTree = theProblem->nEdge - (theProblem->nNode - 1);
+    double *probabilities = probaCompute(theProblem);
+
+    double *cumulatedProba = new double[nEdgesOffTree+1];
+    cumulatedProba[0] = 0.0;
+    for(int i = 1; i <= nEdgesOffTree; i++)
+    {
+        cumulatedProba[i] = cumulatedProba[i-1] + probabilities[i-1];
+    }
+
+    double value = ((double)rand() / ((double)RAND_MAX+1)); // Pas hyper top apparemment mais peut-etre suffisant ici
+
+    for(int i = 1; i <= nEdgesOffTree; i++)
+    {
+        if( (cumulatedProba[i-1] <= value) && (value < cumulatedProba[i]) )
+        {
+            return edgesOffTree[i-1];
+        }
+    }
+    // Je dois ajouter un delete qqpart ?
 }
 
 /*
