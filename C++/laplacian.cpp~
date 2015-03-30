@@ -47,12 +47,21 @@ void Solve(char *FileName)
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
 {
 	Chemin* path= findPath(indexNodeA, indexNodeB, theProblem);
-	int i; 
-	for(i=0; i< path->size; i++)
+	int i; 		
+	int indiceCurrent = indexNodeA;
+	for(i = 0; i < path->size; i++)
 	{
-		path->theChemin[i]->f=1.0;
+		if(indiceCurrent == edgesChemin[i]->a->indice)
+		{
+			edgesChemin[i]->f = 1.0;
+			indiceCurrent = edgesChemin[i]->b->indice;
+		}
+		else
+		{
+			edgesChemin[i]->f = -1.0;
+			indiceCurrent = edgesChemin[i]->a->indice;
+		}
 	}
-
 }
 
 

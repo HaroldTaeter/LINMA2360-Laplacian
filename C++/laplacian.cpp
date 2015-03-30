@@ -47,12 +47,21 @@ void Solve(char *FileName)
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
 {
 	Chemin* path= findPath(indexNodeA, indexNodeB, theProblem);
-	int i; 
-	for(i=0; i< path->size; i++)
+	int i; 		
+	int indiceCurrent = indexNodeA;
+	for(i = 0; i < path->size; i++)
 	{
-		path->theChemin[i]->f=1.0;
-	}// TODO il faut s'occuper du sens du flow I guess
-
+		if(indiceCurrent == edgesChemin[i]->a->indice)
+		{
+			edgesChemin[i]->f = 1.0;
+			indiceCurrent = edgesChemin[i]->b->indice;
+		}
+		else
+		{
+			edgesChemin[i]->f = -1.0;
+			indiceCurrent = edgesChemin[i]->a->indice;
+		}
+	}
 }
 
 
@@ -165,8 +174,7 @@ for(i = 0; i < theProblem->nNode; i++)
   	     	theProblem->edges[nEdgeCurrent].b=&theProblem->nodes[j];
   	     	theProblem->edges[nEdgeCurrent].weight=theProblem->Weights[i][j];
   	     	theProblem->edges[nEdgeCurrent].f=0.0;
-  	     	theProblem->edges[nEdgeCurrent].SET_FLOW=false;
-  	     	
+  	     	  	     	
   	     
   	     	// update node[i]
   	     	theProblem->nodes[i].voisins[nVoisinsCurrent[i]]=&theProblem->nodes[j];
