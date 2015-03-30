@@ -69,6 +69,7 @@ void 			Solve(char *FileName);
 void 			edgeSort(Problem *theProblem);
 void 			Kruskal(Problem *theProblem);
 int 			edgeCompare( const void *edgea, const void *edgeb);
+Chemin*         findPath(int   indexNodeA,int indexNodeB,Problem* theProblem);
 //Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
 //int 			edgeCompare( const Edge *edgea, const Edge *edgeb);
 #endif

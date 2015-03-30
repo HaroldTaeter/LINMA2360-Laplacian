@@ -346,8 +346,8 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
 
 	int numberEdges = 0;
-	Node *nodeA= &theProblem->nodes[nodeA];
-	Node *nodeB= &theProblem->nodes[nodeB];
+	Node *nodeA= &theProblem->nodes[IndexNodeA];
+	Node *nodeB= &theProblem->nodes[IndexNodeB];
 
 	int nextB=0;
 	int currentB=IndexNodeA;

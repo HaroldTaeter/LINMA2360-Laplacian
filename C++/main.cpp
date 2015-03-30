@@ -5,21 +5,21 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <queue>  
+#include <queue>
 #include <new>
-//#include "glfem.h"
+#include "laplacian.h"
 
 using namespace std;
 void Solve(char *FileName);
 
 int main(void)
-{   		
+{
        char *FileName="data2.txt";
        Solve(FileName);
        //exit(0);
 }
 
-
+#include"laplacian.cpp"
 
 
 
