@@ -3,6 +3,7 @@
 -) Décider (faut en parler au prof) sous quelle forme notre code doit recevoir le problème (matrice dans un fichier ?).
 	Et de cela va dépendre vraiment quelle est la bonne structure de données à prendre (ce qu'on a pour l'instant est assez lourd 
 	et redondant).
--) Trouver un flot initial 
+-) Trouver un flot initial.
+-) Pour le find path, il faut comparer les dernier de a avec tous le sb et le dernier b avec tous les a
 
 
