@@ -10,13 +10,15 @@
 //#include "glfem.h"
 
 using namespace std;
-void Solve(char *FileName);
+void Solve(char *FileNameL,char *FileNameb);
 
 int main(void)
 {   		
-       char *FileName="data2.txt";
-       Solve(FileName);
+       char *FileNameL="dataL.txt";
+       char *FileNameb="datab.txt";
+       Solve(FileNameL,FileNameb);
        //exit(0);
+       printf("Execution OVER \n");
 }
 
 

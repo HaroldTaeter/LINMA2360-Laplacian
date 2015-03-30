@@ -52,6 +52,7 @@ int nEdge;
 Node *nodes;
 Edge *edges;
 double **Weights;
+double *b;
 Tree theTree;
 };
 
@@ -61,12 +62,14 @@ int 			inTree(Problem *theProblem, int edgeIndex, int *treeIndex);
 int 			find(int i);
 int 			uni(int i,int j);
 int 			findIndex(int a,int b,Problem *theProblem);
-Problem 		*createProblem(char *FileName);
+Problem 		*createProblem(char *FileNameL, char *FileNameb);
 Chemin* 		findCycle(Edge *edgeCurrent,Problem *theProblem);
 void 			Solve(char *FileName);
 void 			edgeSort(Problem *theProblem);
 void 			Kruskal(Problem *theProblem);
 int 			edgeCompare( const void *edgea, const void *edgeb);
+void			setFlow(int indexNodeA, int indexNodeB, Problem *theProblem);
+Chemin* 		findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem);
 //Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
 //int 			edgeCompare( const Edge *edgea, const Edge *edgeb);
 #endif
