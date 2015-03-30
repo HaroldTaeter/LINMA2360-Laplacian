@@ -16,21 +16,43 @@ Main function that runs the algorithm after initialization of the data
 @pre: FileName containing the system to solve
 @post: void for the moment
 */
-void Solve(char *FileName)
+void Solve(char *FileNameL,char *FileNameb)
 {
-	Problem *theProblem= createProblem(FileName);
-	printf("OK: Problem created \n");
-	Kruskal(theProblem);
 	int i;
+	Problem *theProblem= createProblem(FileNameL, FileNameb);
+	printf("OK: Problem created \n");
+	
+	Kruskal(theProblem);
+	printf("OK: Kruskal \n");	
+	for (i=0; i<theProblem->nEdge; i++)
+	{
+		printf(" edge d'indice %d goes from node %d to node %d \n",theProblem->edges[i].indice,
+				theProblem->edges[i].a->indice,theProblem->edges[i].b->indice);
+	}
 //	for(i=0; i< theProblem->nNode-1; i++)
 //	{
-//		printf("weight of edge %d in tree is %f \n", i, theProblem->theTree.edgesTree[i]->weight);
+//		printf("weight of edge d'indice %d in tree is %f \n", theProblem->theTree.edgesTree[i]->indice,
+//				 theProblem->theTree.edgesTree[i]->weight);
 //	}
+	
 
 //	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
 //	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
 //	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
 //	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
+//	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
+
+	
+	setFlow(0, theProblem->nNode-1, theProblem);
+	printf("OK: Set flow \n");
+	
+
+	for(i=0; i< theProblem->nEdge; i++)
+	{
+		printf("weight of edge d'indice %d has flot:  %lf \n", theProblem->edges[i].indice,
+				 theProblem->edges[i].f);
+	}
+
 
 	//Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 
@@ -47,12 +69,22 @@ void Solve(char *FileName)
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
 {
 	Chemin* path= findPath(indexNodeA, indexNodeB, theProblem);
-	int i;
-	for(i=0; i< path->size; i++)
+	printf("set flow: path ok \n");
+	int i; 		
+	int indiceCurrent = indexNodeA;
+	for(i = 0; i < path->size; i++)
 	{
-		path->theChemin[i]->f=1.0;
-	}// TODO il faut s'occuper du sens du flow I guess
-
+		if(indiceCurrent == path->theChemin[i]->a->indice)
+		{
+			path->theChemin[i]->f = 1.0;
+			indiceCurrent = path->theChemin[i]->b->indice;
+		}
+		else
+		{
+			path->theChemin[i]->f = -1.0;
+			indiceCurrent = path->theChemin[i]->a->indice;
+		}
+	}
 }
 
 
@@ -67,7 +99,7 @@ Reads the data file and initialises all the data structure needed during the com
 @pre: The FileName
 @post: Returns a pointeur to a Problem structure containing all the data.
 */
-Problem *createProblem(char *FileName)
+Problem *createProblem(char *FileNameL, char *FileNameb)
 {
 
 Problem *theProblem = new Problem[1];
@@ -75,7 +107,7 @@ int i,j,trash;
 
 FILE* fichier = NULL;
 int length;
-fichier = fopen(FileName,"r+");
+fichier = fopen(FileNameL,"r+");
 
 	if (fichier != NULL)
 	{
@@ -111,18 +143,18 @@ fichier = fopen(FileName,"r+");
 	}
 	else
 	{
-		printf("Impossible d'ouvrir le fichier data.txt");
+		printf("Impossible d'ouvrir le fichier dataL.txt");
 	}
 
-	for(i=0;i<theProblem->nNode; i++)
-	{
-		for(j=0; j<theProblem->nNode; j++)
-		{
-			printf("%f", theProblem->Weights[i][j]);
-		}
-	printf("\n");
+//	for(i=0;i<theProblem->nNode; i++)
+//	{
+//		for(j=0; j<theProblem->nNode; j++)
+//		{
+//			printf("%f", theProblem->Weights[i][j]);
+//		}
+//	printf("\n");
 
-	}
+//	}
 
 
 //int nNode=theProblem->nNode;
@@ -165,8 +197,6 @@ for(i = 0; i < theProblem->nNode; i++)
   	     	theProblem->edges[nEdgeCurrent].b=&theProblem->nodes[j];
   	     	theProblem->edges[nEdgeCurrent].weight=theProblem->Weights[i][j];
   	     	theProblem->edges[nEdgeCurrent].f=0.0;
-  	     	theProblem->edges[nEdgeCurrent].SET_FLOW=false;
-
 
   	     	// update node[i]
   	     	theProblem->nodes[i].voisins[nVoisinsCurrent[i]]=&theProblem->nodes[j];
@@ -188,6 +218,21 @@ Tree arbreNew;
 arbreNew.edgesTree=NULL;
 theProblem->theTree= arbreNew;
 
+
+FILE* fichier2 = NULL;
+fichier2 = fopen(FileNameb,"r+");
+theProblem->b= new double[theProblem->nNode];
+
+	if (fichier2 != NULL)
+	{
+		for(i=0; i<theProblem->nNode; i++)
+		{
+			fscanf(fichier,"%lf \n",&theProblem->b[i]);
+		}			
+		
+	}
+	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
+	
 return theProblem;
 
 }
@@ -340,7 +385,6 @@ Attention, on suppose que l'edge A-B (si elle existe), n'est PAS dans l'arbre !!
 */
 Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 {
-
 	Chemin *path= new Chemin[1];
 
 	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
@@ -350,8 +394,8 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	Node *nodeB= &theProblem->nodes[IndexNodeB];
 
 	int nextB=0;
-	int currentB=IndexNodeA;
-	int currentA=IndexNodeB;
+	int currentB=IndexNodeB;
+	int currentA=IndexNodeA;
 	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
 	tabA[0]=currentA;
 	int sizeB=0;
@@ -361,11 +405,54 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	int i=0;
 
 	int check=1;
-	while(check)
-	{
+	while(check!=0)
+	{// TODO attention je crois qu'il faut traiter le cas où le node 0 fait partie du chemin !!!
+		
 		int nextB=theProblem->theTree.predecessor[currentB];
 		int nextA=theProblem->theTree.predecessor[currentA];
+		if (nextA==-1)
+		{
+			// just update b search
+			path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+			sizeB++;
+			// check tab en A: stop ou non
+			tabA[sizeA]=nextA;
+			//sizeA++;
+			for(i=0; i<=sizeA; i++)
+			{
+				if(nextB == tabA[i])
+				{
+					check=0;
+					stopNode=i;
+					break;
+				}
+			}
+			currentB=nextB;		
+		}
+		else if(nextB==-1)
+		{
+			// do something else !
+			// just update a search
+//			path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+//			sizeB++;
+			// check tab en A: stop ou non
+			tabA[sizeA]=nextA;
+			sizeA++;
+			for(i=0; i<sizeA; i++)
+			{
+				if(nextB == tabA[i])
+				{
+				check=0;
+				stopNode=i;
+				break;
+				}
+			}
 
+		currentA=nextA;
+//		currentB=nextB;
+			
+		}
+		else{
 		path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
 		sizeB++;
 		// check tab en A: stop ou non
@@ -380,23 +467,27 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 				break;
 			}
 		}
-
+		for
+		
 		currentA=nextA;
 		currentB=nextB;
+		}	
+		printf("check... \n");
 	}
 
 	int count=0;
+	if(tabA[stopNode]==-1) tabA[stopNode]=0;
+	
 	for(i=stopNode; i>=1; i--)
-	{
+	{	
 		path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
 		count++;
 	}
 	delete[] tabA;
 	path->size=count+sizeB;
 	return path;
-
+	printf("set flow: ok find path \n");
 }
-
 
 /*
 Function findCycle
@@ -571,7 +662,6 @@ Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
             return edgesOffTree[i-1];
         }
     }
-    // Je dois ajouter un delete qqpart ?
 }
 
 /*

@@ -3,11 +3,11 @@
 % generate SDD matrix
 %
 
-m=10;
-file='data.txt';
+m=5;
+file='dataL.txt';
 myFile = fopen(file,'w+');
 fprintf(myFile,'Number of nodes %d \n', m);
-fprintf(myFile,'Number of edges %d \n', m+2*(m-1)+2*(m-2));
+fprintf(myFile,'Number of edges %d \n', (m-1)+(m-2));
 
 A=zeros(m,m);
 
