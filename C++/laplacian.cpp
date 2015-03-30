@@ -467,6 +467,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 				break;
 			}
 		}
+		for
 		
 		currentA=nextA;
 		currentB=nextB;
