@@ -591,7 +591,14 @@ double* probaCompute(Problem *theProblem)
         }
     }
 
-    return probabilities;
+    double *cumulatedProba = new double[nEdgesOffTree+1];
+    cumulatedProba[0] = 0.0;
+    for(int i = 1; i <= nEdgesOffTree; i++)
+    {
+        cumulatedProba[i] = cumulatedProba[i-1] + probabilities[i-1];
+    }
+
+    return cumulatedProba;
 }
 
 /* A VERIFIER */
@@ -645,20 +652,12 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
 Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
 {
     int nEdgesOffTree = theProblem->nEdge - (theProblem->nNode - 1);
-    double *probabilities = probaCompute(theProblem);
-
-    double *cumulatedProba = new double[nEdgesOffTree+1];
-    cumulatedProba[0] = 0.0;
-    for(int i = 1; i <= nEdgesOffTree; i++)
-    {
-        cumulatedProba[i] = cumulatedProba[i-1] + probabilities[i-1];
-    }
 
     double value = ((double)rand() / ((double)RAND_MAX+1)); // Pas hyper top apparemment mais peut-etre suffisant ici
 
     for(int i = 1; i <= nEdgesOffTree; i++)
     {
-        if( (cumulatedProba[i-1] <= value) && (value < cumulatedProba[i]) )
+        if( (theProblem->theCumulatedProba[i-1] <= value) && (value < theProblem->theCumulatedProba[i]) )
         {
             return edgesOffTree[i-1];
         }

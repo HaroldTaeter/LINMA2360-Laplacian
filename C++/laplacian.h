@@ -20,14 +20,14 @@ struct Node {
 int degree;
 int indice;
 struct Node **voisins;// Assez redondant ..
-struct Edge **incidentes; 
-}; 
+struct Edge **incidentes;
+};
 
 typedef struct Edge Edge;
 struct Edge {
-int indice; 
+int indice;
 double weight;
-double f; 
+double f;
 Node *a;
 Node *b;
 };
@@ -35,7 +35,7 @@ Node *b;
 typedef struct Tree Tree;
 struct Tree {
 Node *nodeSource;
-int *predecessor;  
+int *predecessor;
 Edge **edgesTree;
 };
 
@@ -54,6 +54,7 @@ Edge *edges;
 double **Weights;
 double *b;
 Tree theTree;
+double *theCumulatedProba;
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
