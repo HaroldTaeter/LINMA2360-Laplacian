@@ -35,7 +35,6 @@ void Solve(char *FileNameL,char *FileNameb)
 //				 theProblem->theTree.edgesTree[i]->weight);
 //	}
 	
-
 //	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
 //	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
 //	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
@@ -397,8 +396,10 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	int currentB=IndexNodeB;
 	int currentA=IndexNodeA;
 	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	int *tabB=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
 	tabA[0]=currentA;
-	int sizeB=0;
+	tabB[0]=currentB;
+	int sizeB=1;
 	int sizeA=1;
 
 	int stopNode=-1;
@@ -413,7 +414,8 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 		if (nextA==-1)
 		{
 			// just update b search
-			path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+			//path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+			tabB[sizeB]=nextB;
 			sizeB++;
 			// check tab en A: stop ou non
 			tabA[sizeA]=nextA;
@@ -453,7 +455,8 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 			
 		}
 		else{
-		path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+		//path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+		tabB[sizeB]=nextB;
 		sizeB++;
 		// check tab en A: stop ou non
 		tabA[sizeA]=nextA;
@@ -464,11 +467,42 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 			{
 				check=0;
 				stopNode=i;
+				
+		
+				int count=0;
+				if(tabA[stopNode]==-1) tabA[stopNode]=0;	
+				for(i=stopNode; i>=1; i--)
+				{	
+				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+				count++;
+				}
+				delete[] tabA;
+				delete[] tabB;
+				path->size=count+sizeB;
+				
 				break;
 			}
 		}
-		for
-		
+		for(i=0; i<sizeB; i++)
+		{
+			if(nextA == tabB[i])
+			{
+				check=0;
+				stopNode=i;
+				int count; 
+				if(tabB[stopNode]==-1) tabB[stopNode]=0;
+				for(i=stopNode; i>=1; i--)
+				{	
+				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+				count++;
+				}
+				delete[] tabA;
+				delete[] tabB;
+				path->size=count+sizeA;
+				break;
+			}
+			
+		}
 		currentA=nextA;
 		currentB=nextB;
 		}	
