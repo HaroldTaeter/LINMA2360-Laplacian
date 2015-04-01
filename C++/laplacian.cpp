@@ -382,6 +382,7 @@ return index;
 Renvoie le  chemin qui relie les nodes d'indices IndexNodeA et IndexNodeB
 Attention, on suppose que l'edge A-B (si elle existe), n'est PAS dans l'arbre !!
 */
+/*
 Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 {
 	Chemin *path= new Chemin[1];
@@ -393,6 +394,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	Node *nodeB= &theProblem->nodes[IndexNodeB];
 
 	int nextB=0;
+	int nextA=0;
 	int currentB=IndexNodeB;
 	int currentA=IndexNodeA;
 	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
@@ -411,6 +413,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 
 		int nextB=theProblem->theTree.predecessor[currentB];
 		int nextA=theProblem->theTree.predecessor[currentA];
+
 		if (nextA==-1)
 		{
 			// just update b search
@@ -418,7 +421,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 			tabB[sizeB]=nextB;
 			sizeB++;
 			// check tab en A: stop ou non
-			tabA[sizeA]=nextA;
+			//tabA[sizeA]=nextA; // Utile ca ?
 			//sizeA++;
 			for(i=0; i<sizeA; i++)
 			{
@@ -440,7 +443,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 			// check tab en A: stop ou non
 			tabA[sizeA]=nextA;
 			sizeA++;
-			tabB[sizeB]=nextB;
+			//tabB[sizeB]=nextB;
 			for(i=0; i<sizeB; i++)
 			{
 				if(nextA == tabB[i])
@@ -451,8 +454,8 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 				}
 			}
 
-		currentA=nextA;
-//		currentB=nextB;
+            currentA=nextA;
+//		    currentB=nextB;
 
 		}
 		else{
@@ -462,6 +465,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 		// check tab en A: stop ou non
 		tabA[sizeA]=nextA;
 		sizeA++;
+
 		for(i=0; i<sizeA; i++)
 		{
 			if(nextB == tabA[i])
@@ -520,6 +524,129 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	}
 	delete[] tabA;
 	path->size=count+sizeB;
+	return path;
+	printf("set flow: ok find path \n");
+}*/
+
+Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
+{
+	Chemin *path= new Chemin[1];
+
+	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
+
+	int numberEdges = 0;
+	Node *nodeA= &theProblem->nodes[IndexNodeA];
+	Node *nodeB= &theProblem->nodes[IndexNodeB];
+
+	int nextB=0;
+	int nextA=0;
+	int currentB=IndexNodeB;
+	int currentA=IndexNodeA;
+	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	int *tabB=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	tabA[0]=currentA;
+	tabB[0]=currentB;
+	int sizeB=1;
+	int sizeA=1;
+
+	int stopNodeA = -1;
+	int stopNodeB = -1;
+	int i=0;
+
+	int check=1;
+
+	while(check!=0)
+	{
+		int nextB=theProblem->theTree.predecessor[currentB];
+		int nextA=theProblem->theTree.predecessor[currentA];
+
+		if(nextA==-1 && nextB==-1)
+        {
+            check = 0;
+            stopNodeA = sizeA-1;
+            stopNodeB = sizeB-1;
+            break;
+        }
+		else if (nextA==-1)
+		{
+			tabB[sizeB] = nextB;
+			sizeB++;
+
+			for(i=0; i<sizeA; i++)
+			{
+				if(nextB == tabA[i])
+				{
+					check = 0;
+					stopNodeA = i;
+					stopNodeB = sizeB-1;
+					break;
+				}
+			}
+			currentB = nextB;
+		}
+		else if (nextB==-1)
+		{
+			tabA[sizeA] = nextA;
+			sizeA++;
+
+			for(i=0; i<sizeB; i++)
+			{
+				if(nextA == tabB[i])
+				{
+					check = 0;
+					stopNodeA = sizeA-1;
+					stopNodeB = i;
+					break;
+				}
+			}
+			currentA = nextA;
+		}
+		else
+        {
+            tabB[sizeB] = nextB;
+            sizeB++;
+            tabA[sizeA] = nextA;
+            sizeA++;
+
+            for(i=0; i<sizeA; i++)
+            {
+                if(nextB == tabA[i])
+                {
+                    check = 0;
+					stopNodeA = i;
+					stopNodeB = sizeB-1;
+					break;
+                }
+            }
+            for(i=0; i<sizeB; i++)
+            {
+                if(nextA == tabB[i])
+                {
+                    check = 0;
+					stopNodeA = sizeA-1;
+					stopNodeB = i;
+					break;
+                }
+            }
+            currentA = nextA;
+            currentB = nextB;
+		}
+		printf("check... \n");
+	}
+
+	for(i = 1; i <= stopNodeB; i++)
+    {
+        path->theChemin[i-1] = &theProblem->edges[findIndex(tabB[i],tabB[i-1],theProblem)];
+    }
+    for(i = stopNodeA; i >= 1; i--)
+    {
+        path->theChemin[stopNodeB+(stopNodeA-i)] = &theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+    }
+    path->size = stopNodeA+stopNodeB;
+
+    delete[] tabA;
+    delete[] tabB;
+
 	return path;
 	printf("set flow: ok find path \n");
 }
