@@ -530,44 +530,38 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 
 Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 {
-	Chemin *path= new Chemin[1];
+	Node *nodeA = &theProblem->nodes[IndexNodeA];
+	Node *nodeB = &theProblem->nodes[IndexNodeB];
 
-	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
-
-	int numberEdges = 0;
-	Node *nodeA= &theProblem->nodes[IndexNodeA];
-	Node *nodeB= &theProblem->nodes[IndexNodeB];
-
-	int nextB=0;
-	int nextA=0;
-	int currentB=IndexNodeB;
-	int currentA=IndexNodeA;
-	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
-	int *tabB=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
-	tabA[0]=currentA;
-	tabB[0]=currentB;
-	int sizeB=1;
-	int sizeA=1;
+	int nextB = 0;
+	int nextA = 0;
+	int currentB = IndexNodeB;
+	int currentA = IndexNodeA;
+	int *tabA = new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	int *tabB = new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	tabA[0] = currentA;
+	tabB[0] = currentB;
+	int sizeB = 1;
+	int sizeA = 1;
 
 	int stopNodeA = -1;
 	int stopNodeB = -1;
-	int i=0;
+	int i = 0;
 
-	int check=1;
+	int check = 1;
 
 	while(check!=0)
 	{
-		int nextB=theProblem->theTree.predecessor[currentB];
-		int nextA=theProblem->theTree.predecessor[currentA];
+		int nextB = theProblem->theTree.predecessor[currentB];
+		int nextA = theProblem->theTree.predecessor[currentA];
 
 		if(nextA==-1 && nextB==-1)
         {
             check = 0;
             stopNodeA = sizeA-1;
             stopNodeB = sizeB-1;
-            break;
         }
-		else if (nextA==-1)
+		else if(nextA==-1)
 		{
 			tabB[sizeB] = nextB;
 			sizeB++;
@@ -584,7 +578,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 			}
 			currentB = nextB;
 		}
-		else if (nextB==-1)
+		else if(nextB==-1)
 		{
 			tabA[sizeA] = nextA;
 			sizeA++;
@@ -628,11 +622,15 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 					break;
                 }
             }
+
             currentA = nextA;
             currentB = nextB;
 		}
 		printf("check... \n");
 	}
+
+	Chemin *path= new Chemin[1];
+	path->theChemin = new Edge*[stopNodeA+stopNodeB]; // faudra en enlever à la fin car il est trop long TODO
 
 	for(i = 1; i <= stopNodeB; i++)
     {
