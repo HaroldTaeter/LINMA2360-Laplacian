@@ -5,15 +5,15 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <queue>  
+#include <queue>
 #include <new>
-//#include "glfem.h"
+#include "laplacian.h"
 
 using namespace std;
 void Solve(char *FileNameL,char *FileNameb);
 
 int main(void)
-{   		
+{
        char *FileNameL="dataL.txt";
        char *FileNameb="datab.txt";
        Solve(FileNameL,FileNameb);
@@ -21,7 +21,7 @@ int main(void)
        printf("Execution OVER \n");
 }
 
-
+#include"laplacian.cpp"
 
 
 
