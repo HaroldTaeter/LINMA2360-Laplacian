@@ -7,7 +7,7 @@
 #include <iostream>
 #include <queue>
 #include <new>
-#include "laplacian.h"
+//#include "laplacian.h"
 
 using namespace std;
 void Solve(char *FileNameL,char *FileNameb);
@@ -21,7 +21,6 @@ int main(void)
        printf("Execution OVER \n");
 }
 
-#include"laplacian.cpp"
 
 
 

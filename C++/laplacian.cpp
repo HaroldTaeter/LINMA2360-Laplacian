@@ -24,11 +24,38 @@ void Solve(char *FileNameL,char *FileNameb)
 
 	Kruskal(theProblem);
 	printf("OK: Kruskal \n");
-	for (i=0; i<theProblem->nEdge; i++)
+
+
+	setFlow(0, theProblem->nNode-1, theProblem);
+	printf("OK: Set flow \n");
+
+
+
+	theProblem->theCumulatedProba=probaCompute(theProblem);
+	int iter; 
+	int iterMax= iterationsK(theProblem, 0.0001);
+	for(iter=0; iter<iterMax; iter++)
 	{
-		printf(" edge d'indice %d goes from node %d to node %d \n",theProblem->edges[i].indice,
-				theProblem->edges[i].a->indice,theProblem->edges[i].b->indice);
+		// TODO	
+		//Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
+		//CycleUpdate()
 	}
+
+
+//Chemin* pathTest = findCycle(&theProblem->edges[6],theProblem);
+
+////	Chemin *pathTest = findPath(1 ,4 , theProblem);
+//	for(i=0; i<pathTest->size; i++)
+//	{
+//		printf(" edge %d du chemin a l'indice %d \n ", i, pathTest->theChemin[i]->indice);
+//	}
+
+
+//	for (i=0; i<theProblem->nEdge; i++)
+//	{
+//		printf(" edge d'indice %d goes from node %d to node %d \n",theProblem->edges[i].indice,
+//				theProblem->edges[i].a->indice,theProblem->edges[i].b->indice);
+//	}
 //	for(i=0; i< theProblem->nNode-1; i++)
 //	{
 //		printf("weight of edge d'indice %d in tree is %f \n", theProblem->theTree.edgesTree[i]->indice,
@@ -41,16 +68,11 @@ void Solve(char *FileNameL,char *FileNameb)
 //	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
 //	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
 
-
-	setFlow(0, theProblem->nNode-1, theProblem);
-	printf("OK: Set flow \n");
-
-
-	for(i=0; i< theProblem->nEdge; i++)
-	{
-		printf("weight of edge d'indice %d has flot:  %lf \n", theProblem->edges[i].indice,
-				 theProblem->edges[i].f);
-	}
+//	for(i=0; i< theProblem->nEdge; i++)
+//	{
+//		printf("weight of edge d'indice %d has flot:  %lf \n", theProblem->edges[i].indice,
+//				 theProblem->edges[i].f);
+//	}
 
 
 	//Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
@@ -217,7 +239,7 @@ Tree arbreNew;
 arbreNew.edgesTree=NULL;
 theProblem->theTree= arbreNew;
 
-
+theProblem->theCumulatedProba=NULL;
 FILE* fichier2 = NULL;
 fichier2 = fopen(FileNameb,"r+");
 theProblem->b= new double[theProblem->nNode];
@@ -577,11 +599,11 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 		int nextA = theProblem->theTree.predecessor[currentA];
 
 		if(nextA==-1 && nextB==-1)
-        {
+        	{
             check = 0;
             stopNodeA = sizeA-1;
             stopNodeB = sizeB-1;
-        }
+       		}
 		else if(nextA==-1)
 		{
 			tabB[sizeB] = nextB;
@@ -651,7 +673,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 	}
 
 	Chemin *path= new Chemin[1];
-	path->theChemin = new Edge*[stopNodeA+stopNodeB]; // faudra en enlever à la fin car il est trop long TODO
+	path->theChemin = new Edge*[stopNodeA+stopNodeB];
 
 	for(i = 1; i <= stopNodeB; i++)
     {
