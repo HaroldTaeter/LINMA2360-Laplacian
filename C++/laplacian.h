@@ -51,10 +51,13 @@ int nNode;
 int nEdge;
 Node *nodes;
 Edge *edges;
+Edge *edgesSorted;
+Edge **edgesOffTree;
 double **Weights;
 double *b;
 Tree theTree;
 double *theCumulatedProba;
+
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
@@ -71,6 +74,9 @@ void 			Kruskal(Problem *theProblem);
 int 			edgeCompare( const void *edgea, const void *edgeb);
 void			setFlow(int indexNodeA, int indexNodeB, Problem *theProblem);
 Chemin* 		findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem);
+Edge* 			RandomPicking(Problem *theProblem, Edge **edgesOffTree);
+int 			iterationsK(Problem *theProblem, double eps);
+double* 		probaCompute(Problem *theProblem);
 //Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
 //int 			edgeCompare( const Edge *edgea, const Edge *edgeb);
 #endif
