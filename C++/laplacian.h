@@ -56,6 +56,7 @@ Edge **edgesOffTree;
 double **Weights;
 double *b;
 Tree theTree;
+Edge **edgesOffTree;
 double *theCumulatedProba;
 
 };
@@ -78,5 +79,13 @@ Edge* 			RandomPicking(Problem *theProblem, Edge **edgesOffTree);
 int 			iterationsK(Problem *theProblem, double eps);
 double* 		probaCompute(Problem *theProblem);
 //Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
-//int 			edgeCompare( const Edge *edgea, const Edge *edgeb);
+double        		stretchEdge(Edge *edgeCurrent, Chemin *Chemin);
+double          	stretchTree(Problem *theProblem);
+double          	probabilityEdge(Edge *edgeCurrent, Problem *theProblem);
+double*         probaCompute(Problem *theProblem);
+int             iterationsK(Problem *theProblem, double eps);
+void            CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
+Edge*           RandomPicking(Problem *theProblem, Edge **edgesOffTree);
+double*         InducedVoltages(Problem *theProblem);
+double*         InducedVoltages2(Problem *theProblem);
 #endif
