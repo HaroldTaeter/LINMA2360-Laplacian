@@ -22,61 +22,40 @@ void Solve(char *FileNameL,char *FileNameb)
 	Problem *theProblem= createProblem(FileNameL, FileNameb);
 	printf("OK: Problem created \n");
 
-	theProblem->edges[0].f = 1;
-	theProblem->edges[1].f = -1;
-	theProblem->edges[2].f = 2;
-	theProblem->edges[3].f = 3;
-	theProblem->edges[4].f = -2;
-	theProblem->edges[5].f = 1;
-
-	/*
-	for(int i = 0; i < theProblem->nEdge; i++)
-    {
-        printf("%d \n", theProblem->edges[i].indice);
-        printf("%f \n", theProblem->edges[i].weight);
-        printf("%d %d \n", theProblem->edges[i].a->indice, theProblem->edges[i].b->indice);
-        printf("\n");
-    }
-
-    for(int i = 0; i < theProblem->nNode; i++)
-    {
-        printf("%d \n", theProblem->nodes[i].indice);
-        printf("%d \n", theProblem->nodes[i].degree);
-        printf("\n");
-    }*/
-
-	/*Kruskal(theProblem);
-
+	Kruskal(theProblem);	
+	printf("OK: Kruskal \n");
+	
+			// RUN
+	setFlow(0, theProblem->nNode-1, theProblem);
+	printf("OK: Set flow \n");
+		
+	theProblem->theCumulatedProba=probaCompute(theProblem);
+//	for(i=0; i<theProblem->nEdge - (theProblem->nNode-1) +1 ; i++)
+//	{
+//		printf("cumulatedProba[%d]=%f \n",i,theProblem->theCumulatedProba[i]);
+//	}
+	
+	int iter;
+	int iterMax= iterationsK(theProblem, 0.0001);
+	//for(iter=0; iter<iterMax; iter++)
+	for(iter=0; iter<20; iter++)
+	{
+		printf(" //////// Iteration number: %d /////////////\n", iter);
+		Edge *edgeCurrent = RandomPicking(theProblem, theProblem->edgesOffTree);
+		printf(" edgeCurrent->indice = %d \n", edgeCurrent->indice);
+		CycleUpdate(edgeCurrent, theProblem);
+	}
+	
     double *voltages = new double[theProblem->nNode];
 
     voltages = InducedVoltages(theProblem);
 
-    printf("ok ? \n");
-
     for(int i = 0; i < theProblem->nNode; i++)
     {
-        printf("Voltage on node %d = %f",i,voltages[i]);
-    }*/
+        printf("Voltage on node %d = %f \n",i,voltages[i]);
+    }
 
-
-	/*Kruskal(theProblem);
-	printf("OK: Kruskal \n");
-	
-        setFlow(0, theProblem->nNode-1, theProblem);
-	printf("OK: Set flow \n");
-		
-	theProblem->theCumulatedProba=probaCompute(theProblem);
-
-	int iter;
-	int iterMax= iterationsK(theProblem, 0.0001);
-	for(iter=0; iter<iterMax; iter++)
-	{
-	    // !!! selectionner les offTreeEdges dans Kruskal !!!
-		Edge *edgeCurrent = RandomPicking(theProblem, theProblem->edgesOffTree);
-		CycleUpdate(edgeCurrent, theProblem);
-	}*/
-
-
+			// TEST
 //Chemin* pathTest = findCycle(&theProblem->edges[6],theProblem);
 
 ////	Chemin *pathTest = findPath(1 ,4 , theProblem);
@@ -85,11 +64,16 @@ void Solve(char *FileNameL,char *FileNameb)
 //		printf(" edge %d du chemin a l'indice %d \n ", i, pathTest->theChemin[i]->indice);
 //	}
 
-	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
-	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
-	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
-	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
-	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
+			// TEST 
+//	for(i=0; i<theProblem->nNode-1; i++)
+//	{
+//		printf("l'edge %d du tree a pour indice: %d \n", i, theProblem->theTree.edgesTree[i]->indice);
+//	}
+//	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
+//	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
+//	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
+//	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
+//	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
 }
 
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
@@ -142,13 +126,12 @@ fichier = fopen(FileNameL,"r+");
 		int nNode = theProblem->nNode;
 		printf("Nombre de nodes %d\n",theProblem->nNode);
 
-		fseek(fichier,18,SEEK_CUR); // WINDOWS : 19
+		fseek(fichier,17,SEEK_CUR); // WINDOWS : 19
 		fscanf(fichier,"%d",&theProblem->nEdge);
 
 		printf("Nombre d'edges %d\n",theProblem->nEdge);
 // OK ??? TODO
-		fseek(fichier,1,SEEK_CUR);
-
+//		fseek(fichier,1,SEEK_CUR);
 
 		double **tableau = (double**) malloc(nNode*sizeof(double*));
 		for (i = 0; i < nNode; i++)
@@ -164,7 +147,7 @@ fichier = fopen(FileNameL,"r+");
 				tableau[row][column]= -tableau[row][column];
 				if(row == column)	tableau[row][row]=0.0;
 			}
-//			printf("\n");
+			//printf("\n");
 		}
 		
 		fclose(fichier);
@@ -177,14 +160,14 @@ fichier = fopen(FileNameL,"r+");
 		printf("Impossible d'ouvrir le fichier dataL.txt");
 	}
 
-//	for(i=0;i<theProblem->nNode; i++)
-//	{
-//		for(j=0; j<theProblem->nNode; j++)
-//		{
-//			printf("%f", theProblem->Weights[i][j]);
-//		}
-//	printf("\n");
-//	}
+	for(i=0;i<theProblem->nNode; i++)
+	{
+		for(j=0; j<theProblem->nNode; j++)
+		{
+			printf(" %f ", theProblem->Weights[i][j]);
+		}
+	printf("\n");
+	}
 
 
 //int nNode=theProblem->nNode;
@@ -346,13 +329,23 @@ void Kruskal(Problem *theProblem)
         	myqueue.pop();
         	for (i = 0; i < theProblem->nodes[currentNode].degree ; i++)
             	{
-            		if( added[theProblem->nodes[currentNode].voisins[i]->indice]==0)
+            		if( theProblem->nodes[currentNode].incidentes[i]->a->indice != currentNode  &&
+            			added[theProblem->nodes[currentNode].incidentes[i]->a->indice] == 0 &&
+            			inTree(theProblem->nodes[currentNode].incidentes[i], theProblem)==1 )
             		{
-			myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
-			theProblem->theTree.predecessor[theProblem->nodes[currentNode].voisins[i]->indice]=currentNode;
-            		added[theProblem->nodes[currentNode].voisins[i]->indice]=1;
+            			myqueue.push(theProblem->nodes[currentNode].incidentes[i]->a->indice);
+            			theProblem->theTree.predecessor[theProblem->nodes[currentNode].incidentes[i]->a->indice]=currentNode;
+	            		added[theProblem->nodes[currentNode].incidentes[i]->a->indice]=1;	
             		}
-            	}
+            		else if( theProblem->nodes[currentNode].incidentes[i]->b->indice != currentNode  &&
+            			added[theProblem->nodes[currentNode].incidentes[i]->b->indice] == 0 &&
+            			inTree(theProblem->nodes[currentNode].incidentes[i], theProblem)==1)
+            		{
+	      			myqueue.push(theProblem->nodes[currentNode].incidentes[i]->b->indice);
+            			theProblem->theTree.predecessor[theProblem->nodes[currentNode].incidentes[i]->b->indice]=currentNode;
+	            		added[theProblem->nodes[currentNode].incidentes[i]->b->indice]=1;
+            		}		
+               	}
     	}
 
 }
@@ -405,6 +398,26 @@ for(i=0; i < theProblem->nodes[a].degree; i++)
 }
 
 return index;
+}
+
+/*
+Prend un pointeur sur une edge et renvoie 1 si elle est dans theTree, 0 sinon
+
+*/
+int inTree(Edge *edgea,Problem *theProblem)
+{
+	int i; 
+	for(i=0; i<theProblem->nNode-1; i++)
+	{
+		if( theProblem->theTree.edgesTree[i]->indice == edgea->indice )
+		{
+			return 1; 
+		}
+	}
+	
+	return 0; 
+
+
 }
 /////////////////////////////////////////////////////////////////////
 /////////////////////////// DFS & Cie //////////////////////////////
@@ -511,7 +524,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
             currentA = nextA;
             currentB = nextB;
 		}
-		printf("check... \n");
+		//printf("check... \n");
 	}
 
 	Chemin *path= new Chemin[1];
@@ -584,7 +597,9 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
 /* A VERIFIER */
 double stretchTree(Problem *theProblem)
 {
-    double stretch = 0.0;
+    double stretch = 0.0;// TODO je crois qu'on ne prend pas bien en compte que le stretch vaut 1
+    			// si l'edge est dans l'arbre. Peut être que ça marche mais on devrait traiter le cas à part
+    			// quand on precompetura tout à l'anvance
 
     for(int i = 0; i < theProblem->nEdge; i++)
     {
@@ -616,34 +631,34 @@ double* probaCompute(Problem *theProblem)
     int nEdgesOffTree = theProblem->nEdge - (theProblem->nNode-1);
 
     double *probabilities = new double[nEdgesOffTree];
-
-    int edgesFound = 0;
-
-    for(int i = 0; i < theProblem->nEdge; i++) // PROBABLEMENT OK mais un peu barbare (ça arrive :p)
+	double sumProba=0.0;
+    //int edgesFound = 0;
+	int i; 
+    for(i = 0; i < nEdgesOffTree; i++) // les probas correspondent à l'ordre de edgesOffTree
     {
-        bool entered = false;
-        for(int j = 0; j < (theProblem->nNode-1); j++)
-        {
-            if(theProblem->edges[i].indice == theProblem->theTree.edgesTree[j]->indice)
-            {
-                entered = true;
-                break;
-            }
-        }
-        if(!entered)
-        {
-            probabilities[edgesFound] = probabilityEdge(&theProblem->edges[i], theProblem);
-            edgesFound = edgesFound + 1;
-        }
+            probabilities[i] = probabilityEdge(theProblem->edgesOffTree[i],theProblem);
+            sumProba +=     probabilities[i];   
     }
+	for(i = 0; i < nEdgesOffTree; i++) // TODO problem a régler ! La somme ne vaut pas 1 donc j'ai normalisé.
+    {
+            probabilities[i] = probabilities[i]/sumProba;
 
+    }
+	
+	
+	for(i=0; i<nEdgesOffTree; i++)
+	{
+		printf(" edges number %d off the tree has indice= %d and proba=%f \n",i,theProblem->edgesOffTree[i]->indice, 
+			probabilities[i]);
+	}
+	
+	
     double *cumulatedProba = new double[nEdgesOffTree+1];
     cumulatedProba[0] = 0.0;
     for(int i = 1; i <= nEdgesOffTree; i++)
     {
         cumulatedProba[i] = cumulatedProba[i-1] + probabilities[i-1];
     }
-
     return cumulatedProba;
 }
 
@@ -662,20 +677,19 @@ int iterationsK(Problem *theProblem, double eps)
 /* A VERIFIER */
 void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
 {
-    double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
 
+    double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
     Chemin *myChemin = findCycle(edgeCurrent, theProblem);
     Edge **edgesChemin = myChemin->theChemin;
-
+	
     double stretchE = stretchEdge(edgeCurrent, myChemin);
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
-
+    
     for(int i = 0; i < myChemin->size; i++)
     {
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     }
-
     edgeCurrent->f = edgeCurrent->f - Delta/Re;
 
     int indiceCurrent = edgeCurrent->b->indice;
@@ -719,12 +733,12 @@ double* InducedVoltages(Problem *theProblem) // pas encore optimise
         voltages[i] = 0.0;
     }
 
-    printf("ok ? \n");
-    for(int i =0; i < theProblem->nNode-1; i++)
-    {
-        printf("%d ",theProblem->theTree.edgesTree[i]->indice);
-    }
-    printf("ok ? \n");
+    //printf("ok ? \n");
+//    for(int i =0; i < theProblem->nNode-1; i++)
+//    {
+//        printf("%d ",theProblem->theTree.edgesTree[i]->indice);
+//    }
+    //printf("ok ? \n");
 
     for(int i = 0; i < theProblem->nNode; i++)
     {
@@ -747,7 +761,7 @@ double* InducedVoltages2(Problem *theProblem)
         voltages[i] = 0.0;
     }
 
-    Tree finalTree = theProblem->theTree; // -> ou . ?
+    Tree finalTree = theProblem->theTree; 
     Node *source = finalTree.nodeSource;
 
     queue<int> myqueue;

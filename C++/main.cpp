@@ -8,7 +8,7 @@
 #include <queue>
 #include <new>
 
-#include "laplacian.cpp"
+//#include "laplacian.cpp"
 
 using namespace std;
 void Solve(char *FileNameL,char *FileNameb);

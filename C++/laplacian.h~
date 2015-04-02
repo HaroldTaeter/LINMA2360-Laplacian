@@ -56,14 +56,13 @@ Edge **edgesOffTree;
 double **Weights;
 double *b;
 Tree theTree;
-Edge **edgesOffTree;
 double *theCumulatedProba;
 
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
 
-int 			inTree(Problem *theProblem, int edgeIndex, int *treeIndex);
+int 			inTree(Edge *edgea,Problem *theProblem);
 int 			find(int i);
 int 			uni(int i,int j);
 int 			findIndex(int a,int b,Problem *theProblem);
@@ -79,9 +78,9 @@ Edge* 			RandomPicking(Problem *theProblem, Edge **edgesOffTree);
 int 			iterationsK(Problem *theProblem, double eps);
 double* 		probaCompute(Problem *theProblem);
 //Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
-double          stretchEdge(Edge *edgeCurrent, Chemin *Chemin);
-double          stretchTree(Problem *theProblem);
-double          probabilityEdge(Edge *edgeCurrent, Problem *theProblem);
+double        		stretchEdge(Edge *edgeCurrent, Chemin *Chemin);
+double          	stretchTree(Problem *theProblem);
+double          	probabilityEdge(Edge *edgeCurrent, Problem *theProblem);
 double*         probaCompute(Problem *theProblem);
 int             iterationsK(Problem *theProblem, double eps);
 void            CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
