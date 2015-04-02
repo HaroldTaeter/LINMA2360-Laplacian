@@ -7,7 +7,6 @@
 #include <iostream>
 #include <queue>
 #include <new>
-#include "laplacian.h"
 
 using namespace std;
 void Solve(char *FileNameL,char *FileNameb);
@@ -20,8 +19,6 @@ int main(void)
        //exit(0);
        printf("Execution OVER \n");
 }
-
-#include"laplacian.cpp"
 
 
 
