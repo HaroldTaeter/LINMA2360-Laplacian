@@ -22,7 +22,44 @@ void Solve(char *FileNameL,char *FileNameb)
 	Problem *theProblem= createProblem(FileNameL, FileNameb);
 	printf("OK: Problem created \n");
 
-	Kruskal(theProblem);
+	theProblem->edges[0].f = 1;
+	theProblem->edges[1].f = -1;
+	theProblem->edges[2].f = 2;
+	theProblem->edges[3].f = 3;
+	theProblem->edges[4].f = -2;
+	theProblem->edges[5].f = 1;
+
+	/*
+	for(int i = 0; i < theProblem->nEdge; i++)
+    {
+        printf("%d \n", theProblem->edges[i].indice);
+        printf("%f \n", theProblem->edges[i].weight);
+        printf("%d %d \n", theProblem->edges[i].a->indice, theProblem->edges[i].b->indice);
+        printf("\n");
+    }
+
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        printf("%d \n", theProblem->nodes[i].indice);
+        printf("%d \n", theProblem->nodes[i].degree);
+        printf("\n");
+    }*/
+
+	/*Kruskal(theProblem);
+
+    double *voltages = new double[theProblem->nNode];
+
+    voltages = InducedVoltages(theProblem);
+
+    printf("ok ? \n");
+
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        printf("Voltage on node %d = %f",i,voltages[i]);
+    }*/
+
+
+	/*Kruskal(theProblem);
 	printf("OK: Kruskal \n");
 
 
@@ -32,14 +69,14 @@ void Solve(char *FileNameL,char *FileNameb)
 
 
 	theProblem->theCumulatedProba=probaCompute(theProblem);
-	int iter; 
+	int iter;
 	int iterMax= iterationsK(theProblem, 0.0001);
 	for(iter=0; iter<iterMax; iter++)
 	{
-		// TODO	
-		//Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
-		//CycleUpdate()
-	}
+	    // !!! selectionner les offTreeEdges dans Kruskal !!!
+		Edge *edgeCurrent = RandomPicking(theProblem, theProblem->edgesOffTree);
+		CycleUpdate(edgeCurrent, theProblem);
+	}*/
 
 
 //Chemin* pathTest = findCycle(&theProblem->edges[6],theProblem);
@@ -132,21 +169,20 @@ fichier = fopen(FileNameL,"r+");
 
 	if (fichier != NULL)
 	{
-		fseek(fichier,16,SEEK_SET);
+		fseek(fichier,16,SEEK_SET); // WINDOWS : 16
 		fscanf(fichier,"%d",&theProblem->nNode);
-		int nNode=theProblem->nNode;
+		int nNode = theProblem->nNode;
+		printf("Nombre de nodes %d\n",theProblem->nNode);
 
-		fseek(fichier,17,SEEK_CUR);
+		fseek(fichier,18,SEEK_CUR); // WINDOWS : 19
 		fscanf(fichier,"%d",&theProblem->nEdge);
-
 		printf("Nombre d'edges %d\n",theProblem->nEdge);
 
-
+		fseek(fichier,1,SEEK_CUR);
 
 		double **tableau = (double**) malloc(nNode*sizeof(double*));
 		for (i = 0; i < nNode; i++)
 		       tableau[i] = (double*) malloc(nNode*sizeof(double));
-
 
 		for(int row = 0; row < nNode; row++)
 		{
@@ -154,12 +190,15 @@ fichier = fopen(FileNameL,"r+");
 			{
 				fseek(fichier,1,SEEK_CUR);
 				fscanf(fichier,"%lf",&tableau[row][column]);
-				tableau[row][column]= - tableau[row][column];
+				//printf("%f ", tableau[row][column]);
+				tableau[row][column]= -tableau[row][column];
 				if(row == column)	tableau[row][row]=0.0;
-
 			}
+			printf("\n");
 		}
 		fclose(fichier);
+		printf("\n");
+
 		theProblem->Weights=tableau;
 	}
 	else
@@ -237,6 +276,7 @@ for(i = 0; i < theProblem->nNode; i++)
 
 Tree arbreNew;
 arbreNew.edgesTree=NULL;
+arbreNew.nodeSource = &theProblem->nodes[0];
 theProblem->theTree= arbreNew;
 
 theProblem->theCumulatedProba=NULL;
@@ -404,173 +444,6 @@ return index;
 Renvoie le  chemin qui relie les nodes d'indices IndexNodeA et IndexNodeB
 Attention, on suppose que l'edge A-B (si elle existe), n'est PAS dans l'arbre !!
 */
-/*
-Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
-{
-	Chemin *path= new Chemin[1];
-
-	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
-
-	int numberEdges = 0;
-	Node *nodeA= &theProblem->nodes[IndexNodeA];
-	Node *nodeB= &theProblem->nodes[IndexNodeB];
-
-	int nextB=0;
-	int nextA=0;
-	int currentB=IndexNodeB;
-	int currentA=IndexNodeA;
-	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
-	int *tabB=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
-	tabA[0]=currentA;
-	tabB[0]=currentB;
-	int sizeB=1;
-	int sizeA=1;
-
-	int stopNode=-1;
-	int i=0;
-
-	int check=1;
-	while(check!=0)
-	{// TODO attention je crois qu'il faut traiter le cas où le node 0 fait partie du chemin !!!
-
-		int nextB=theProblem->theTree.predecessor[currentB];
-		int nextA=theProblem->theTree.predecessor[currentA];
-
-		if (nextA==-1)
-		{
-			// just update b search
-			//path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
-			tabB[sizeB]=nextB;
-			sizeB++;
-			// check tab en A: stop ou non
-			//tabA[sizeA]=nextA; // Utile ca ?
-			//sizeA++;
-			for(i=0; i<sizeA; i++)
-			{
-				if(nextB == tabA[i])
-				{
-					check=0;
-					stopNode=i;
-					break;
-				}
-			}
-			currentB=nextB;
-		}
-		else if(nextB==-1)
-		{
-			// do something else !
-			// just update a search
-//			path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
-//			sizeB++;
-			// check tab en A: stop ou non
-			tabA[sizeA]=nextA;
-			sizeA++;
-			//tabB[sizeB]=nextB;
-			for(i=0; i<sizeB; i++)
-			{
-				if(nextA == tabB[i])
-				{
-                    check=0;
-                    stopNode=i;
-                    break;
-				}
-			}
-
-            currentA=nextA;
-//		    currentB=nextB;
-
-		}
-		else{
-		//path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
-		tabB[sizeB]=nextB;
-		sizeB++;
-		// check tab en A: stop ou non
-		tabA[sizeA]=nextA;
-		sizeA++;
-
-		for(i=0; i<sizeA; i++)
-		{
-			if(nextB == tabA[i])
-			{
-				check=0;
-				stopNode=i;
-				
-		
-				int count=0;
-				if(tabA[stopNode]==-1) tabA[stopNode]=0;	
-				for(i=stopNode; i>=1; i--)
-				{	
-
-				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
-				count++;
-				}
-				delete[] tabA;
-				delete[] tabB;
-				path->size=count+sizeB;
-
-				break;
-			}
-		}
-		for(i=0; i<sizeB; i++)
-		{
-			if(nextA == tabB[i])
-			{
-				check=0;
-				stopNode=i;
-				int count;
-				if(tabB[stopNode]==-1) tabB[stopNode]=0;
-				for(i=stopNode; i>=1; i--)
-				{
-				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
-				count++;
-				}
-				delete[] tabA;
-				delete[] tabB;
-				path->size=count+sizeA;
-				break;
-			}
-
-		}
-		for(i=0; i<sizeB; i++)
-		{
-			if(nextA == tabB[i])
-			{
-				check=0;
-				stopNode=i;
-				int count; 
-				if(tabB[stopNode]==-1) tabB[stopNode]=0;
-				for(i=stopNode; i>=1; i--)
-				{	
-				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
-				count++;
-				}
-				delete[] tabA;
-				delete[] tabB;
-				path->size=count+sizeA;
-				break;
-			}
-			
-		}
-		currentA=nextA;
-		currentB=nextB;
-		}
-		printf("check... \n");
-	}
-
-	int count=0;
-	if(tabA[stopNode]==-1) tabA[stopNode]=0;
-
-	for(i=stopNode; i>=1; i--)
-	{
-		path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
-		count++;
-	}
-	delete[] tabA;
-	path->size=count+sizeB;
-	return path;
-	printf("set flow: ok find path \n");
-}*/
-
 Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 {
 	Node *nodeA = &theProblem->nodes[IndexNodeA];
@@ -688,8 +561,9 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
     delete[] tabA;
     delete[] tabB;
 
+    printf("set flow: ok find path \n");
+
 	return path;
-	printf("set flow: ok find path \n");
 }
 
 /*
@@ -865,6 +739,74 @@ Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
             return edgesOffTree[i-1];
         }
     }
+}
+
+/* A VERIFIER */
+double* InducedVoltages(Problem *theProblem) // pas encore optimise
+{
+    double *voltages = new double[theProblem->nNode];
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        voltages[i] = 0.0;
+    }
+
+    printf("ok ? \n");
+    for(int i =0; i < theProblem->nNode-1; i++)
+    {
+        printf("%d ",theProblem->theTree.edgesTree[i]->indice);
+    }
+    printf("ok ? \n");
+
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        Chemin *myChemin = findPath(theProblem->theTree.nodeSource->indice, theProblem->nodes[i].indice, theProblem);
+        for(int j = 0; j < myChemin->size; j++)
+        {
+            voltages[i] = voltages[i] + (myChemin->theChemin[j]->f)/(myChemin->theChemin[j]->weight);
+        }
+    }
+
+    return voltages;
+}
+
+/* A VERIFIER */
+double* InducedVoltages2(Problem *theProblem)
+{
+    double *voltages = new double[theProblem->nNode];
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        voltages[i] = 0.0;
+    }
+
+    Tree finalTree = theProblem->theTree; // -> ou . ?
+    Node *source = finalTree.nodeSource;
+
+    queue<int> myqueue;
+	myqueue.push(source->indice);
+    int *visited = new int[theProblem->nNode];
+    visited[0] = 1;
+    for(int i = 1; i < theProblem->nNode; i++)
+    {
+        visited[i] = 0;
+    }
+
+    while(!myqueue.empty())
+	{
+		int currentNode = myqueue.front();
+       	myqueue.pop();
+       	for (int i = 0; i < theProblem->nodes[currentNode].degree ; i++)
+        {
+            if(visited[theProblem->nodes[currentNode].voisins[i]->indice]==0)
+            {
+                myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
+                Edge edgeCurrent = theProblem->edges[findIndex(currentNode, theProblem->nodes[currentNode].voisins[i]->indice, theProblem)];
+                voltages[theProblem->nodes[currentNode].voisins[i]->indice] = voltages[currentNode] + (edgeCurrent.f)/(edgeCurrent.weight);
+                visited[theProblem->nodes[currentNode].voisins[i]->indice] = 1;
+            }
+        }
+    }
+
+    return voltages;
 }
 
 /*
