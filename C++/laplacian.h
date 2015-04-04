@@ -62,7 +62,7 @@ double *theCumulatedProba;
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
 
-int 			inTree(Problem *theProblem, int edgeIndex, int *treeIndex);
+int 			inTree(Edge *edgea,Problem *theProblem);
 int 			find(int i);
 int 			uni(int i,int j);
 int 			findIndex(int a,int b,Problem *theProblem);
@@ -81,10 +81,10 @@ double* 		probaCompute(Problem *theProblem);
 double        		stretchEdge(Edge *edgeCurrent, Chemin *Chemin);
 double          	stretchTree(Problem *theProblem);
 double          	probabilityEdge(Edge *edgeCurrent, Problem *theProblem);
-double*         probaCompute(Problem *theProblem);
-int             iterationsK(Problem *theProblem, double eps);
-void            CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
-Edge*           RandomPicking(Problem *theProblem, Edge **edgesOffTree);
-double*         InducedVoltages(Problem *theProblem);
-double*         InducedVoltages2(Problem *theProblem);
+double*         	probaCompute(Problem *theProblem);
+int             	iterationsK(Problem *theProblem, double eps);
+void            	CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
+Edge*           	RandomPicking(Problem *theProblem, Edge **edgesOffTree);
+double*         	InducedVoltages(Problem *theProblem);
+double*         	InducedVoltages2(Problem *theProblem);
 #endif

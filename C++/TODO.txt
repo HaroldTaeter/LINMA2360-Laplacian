@@ -1,5 +1,11 @@
 
 
+-) Après avoir trouvé l'arbre: - pour les edges dans le tree et en dehors, calculer leur stretch (trivial si dans l'arbre)
+	et ajouter cela à la structure arbre. Au passage on ajoute un *Chemin à ma structure edge, comme ça on calcule UNE SEULE FOIS
+	le chemin attaché à une edge.
+
+
+
 -) Décider (faut en parler au prof) sous quelle forme notre code doit recevoir le problème (matrice dans un fichier ?).
 	Et de cela va dépendre vraiment quelle est la bonne structure de données à prendre (ce qu'on a pour l'instant est assez lourd 
 	et redondant).

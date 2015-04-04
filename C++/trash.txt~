@@ -1,3 +1,120 @@
+	/*
+	for(int i = 0; i < theProblem->nEdge; i++)
+    {
+        printf("%d \n", theProblem->edges[i].indice);
+        printf("%f \n", theProblem->edges[i].weight);
+        printf("%d %d \n", theProblem->edges[i].a->indice, theProblem->edges[i].b->indice);
+        printf("\n");
+    }
+
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        printf("%d \n", theProblem->nodes[i].indice);
+        printf("%d \n", theProblem->nodes[i].degree);
+        printf("\n");
+    }*/
+
+
+
+
+// ON N'UTILISE PLUS CETTE FONCTION POUR L'INSTANT !
+//Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
+//{
+///*
+//Specification:
+//Returns a Chemin structure that goes from the Node "edgeCurrent->b" to "edgeCurrent->a".
+//edgeCurrent is an edge that does not belong to theTree.
+//*/
+//
+//	/// DFS ///
+//	int i;
+//	int found=0;
+//	int *generators = new int[theProblem->nNode];
+//	//int *generators = malloc(sizeof(int)*theProblem->nNode);
+//	int numberEdges = 0;
+//	Node *nodeA= edgeCurrent->a;
+//	Node *nodeB= edgeCurrent->b;
+//	/// 1) DFS from nodeA tot nodeB ////
+//	queue<int> myqueue;
+//	myqueue.push(nodeA->indice);
+//
+//	while(!myqueue.empty())
+//	{
+//        if(myqueue.front() == nodeB->indice)
+//        {
+//        	found =1;// check pour dire qu'on a trouvé le node destination
+//        	break;
+//        }
+//	else
+//	{
+//		int currentNode=myqueue.front();// on va spliter ce node
+//        	myqueue.pop();
+//        	for (i = 0; i < theProblem->nodes[currentNode].degree ; i++)
+//            	{
+//			myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
+//			generators[theProblem->nodes[currentNode].voisins[i]->indice]=currentNode;// TODO tc
+//            	}
+//            }
+//    	}
+//
+//	// sanity check
+//	if (found ==1)
+//	{
+//		 cout << "on a found le chemin \n ";
+//	}
+//	else{
+//		cout << "ERROR: chemin not found in DFS \n";
+//	}
+//
+//	/// 2) Recover path ////
+//
+//	// la structure à remplir, (puis changer ordre pour les edges ?)
+//	//Chemin *chemin=malloc(sizeof(Chemin));
+//	Chemin *chemin=new Chemin[1];
+//	chemin->size=0;
+//	chemin->theChemin=NULL;
+//	int *reverse=new int[theProblem->nEdge];
+//	//malloc(theProblem->nEdge*sizeof(Edge));// on le rempli trop grand mais on va pas jusqu'au bout
+//
+//	int k=nodeB->indice;
+//	while( generators[k] != nodeA->indice)
+//	{// remplir reverse en parcourant le mapping
+//
+//		// trouver l'indice de l'edge qui relie les nodes d'indices k et generators[k]:
+//		for(i=0; i< theProblem->nodes[k].degree; i++ )
+//		{
+//			if( (theProblem->nodes[k].incidentes[i]->a->indice == k &&
+//			     theProblem->nodes[k].incidentes[i]->b->indice == generators[k] ) ||
+//			     (theProblem->nodes[k].incidentes[i]->a->indice == generators[k] &&
+//			     theProblem->nodes[k].incidentes[i]->b->indice == k ) )
+//			{
+//				reverse[chemin->size]=theProblem->nodes[k].incidentes[i]->indice;
+//				break;
+//			}
+//		}
+//		chemin->size= chemin->size+1;
+//		k=generators[k];
+//	}
+//	chemin->theChemin=new Edge*[chemin->size];
+//	//malloc(theChemin->size*sizeof(Edge));
+//	for(i=0; i<chemin->size; i++)
+//	{
+//		chemin->theChemin[i]=&(theProblem->edges[reverse[i]]);// theChemin c'est des pointeurs et reverse c'est des indices
+//	}
+
+/* ON A PEUT ETRE PAS BESOIN DE RETOURNER LE CYCLE, DEPEND DES SIGNES de flots ETC, TODO à vérifier */
+//	chemin->size=numberEdges;
+//	chemin->theChemin=malloc(numberEdges*sizeof(Edge));
+//	for(i=0; i<numberEdges; i++)
+//	{
+//		chemin->theChemin[i]=reverse[numberEdges-1-i];
+//	}
+
+//	return chemin;
+//}
+
+
+
 int sizeEdgeA=0;
 	int sizeNodeA=0;
 	Edge **edgeGuessA=malloc((theProblem->nEdge*sizeof(Edge)));
@@ -10,12 +127,12 @@ int sizeEdgeA=0;
 	Node **nodeGuessB=malloc((theProblem->nNode*sizeof(Node)));
 	nodeGuessB[0]=theProblem->theTree->node;
 	sizeNodeB++;
-	
+
 /////////////////////////////////////////////////////////////////////////
 
 
 int N=fmin(sizeNodeB,sizeNodeA);
-	
+
 	for(i=1; i<=N ; i++)
 	{
 		if(nodeGuessA[ sizeNodeA-i ]->indice == nodeGuessB[ sizeNodeB-i]->indice)
@@ -23,16 +140,16 @@ int N=fmin(sizeNodeB,sizeNodeA);
 			// TODO mettre ensmeble les deux listes d'edges (utiliser i pour savoir comment couper je crois)
 			// et puis retourner le chemin total (attention à bien traiter le cas limite où le node[0] est sur le chemin)
 			// voir autre cas limite: le node[0] est une des extrémités de edgeCurrent (très facile)
-			//break; 
+			//break;
 		}
-	
+
 	}
-	
-	
+
+
 	/////////////////////////////////////////////////////
-	// approches du code avec les incidentes             	TO DELETE	
+	// approches du code avec les incidentes             	TO DELETE
 //	      	       	if ( theProblem->nodes[currentNode].incidentes[i]->a->indice == currentNode)
-//	      	       	{// on est dans le cas où le currentNode est "à la base (coté a) de l'edge qu'on emprunte" 
+//	      	       	{// on est dans le cas où le currentNode est "à la base (coté a) de l'edge qu'on emprunte"
 //	      	       		myqueue.push( theProblem->nodes[currentNode].incidentes[i]->b->indice  );// TODO check
 //                		generators[theProblem->nodes[currentNode].incidentes[i]->b->indice] = currentNode;
 //	      	       	}
@@ -80,7 +197,7 @@ int N=fmin(sizeNodeB,sizeNodeA);
             sscanf(line, "%lf", &theProblem->Weights[i][j]);
         i++;
     }*/
-    
+
    /* for (i = 0; i < nNode; i++)
     {
     	for(j=0; j < nNode; j++)
@@ -102,3 +219,174 @@ int N=fmin(sizeNodeB,sizeNodeA);
 	}
 	//int *indexEdge=malloc(sizeof(int)*(theProblem->nNode-1));
 	*/
+
+////////////////////////////////////////////////////////////////:
+
+/*
+Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
+{
+	Chemin *path= new Chemin[1];
+
+	path->theChemin = new Edge*[theProblem->nNode-1]; // faudra en enlever à la fin car il est trop long TODO
+
+	int numberEdges = 0;
+	Node *nodeA= &theProblem->nodes[IndexNodeA];
+	Node *nodeB= &theProblem->nodes[IndexNodeB];
+
+	int nextB=0;
+	int nextA=0;
+	int currentB=IndexNodeB;
+	int currentA=IndexNodeA;
+	int *tabA=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	int *tabB=new int[theProblem->nNode-1];// tableau d'indice des nodes sur le chemin
+	tabA[0]=currentA;
+	tabB[0]=currentB;
+	int sizeB=1;
+	int sizeA=1;
+
+	int stopNode=-1;
+	int i=0;
+
+	int check=1;
+	while(check!=0)
+	{// TODO attention je crois qu'il faut traiter le cas où le node 0 fait partie du chemin !!!
+
+		int nextB=theProblem->theTree.predecessor[currentB];
+		int nextA=theProblem->theTree.predecessor[currentA];
+
+		if (nextA==-1)
+		{
+			// just update b search
+			//path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+			tabB[sizeB]=nextB;
+			sizeB++;
+			// check tab en A: stop ou non
+			//tabA[sizeA]=nextA; // Utile ca ?
+			//sizeA++;
+			for(i=0; i<sizeA; i++)
+			{
+				if(nextB == tabA[i])
+				{
+					check=0;
+					stopNode=i;
+					break;
+				}
+			}
+			currentB=nextB;
+		}
+		else if(nextB==-1)
+		{
+			// do something else !
+			// just update a search
+//			path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+//			sizeB++;
+			// check tab en A: stop ou non
+			tabA[sizeA]=nextA;
+			sizeA++;
+			//tabB[sizeB]=nextB;
+			for(i=0; i<sizeB; i++)
+			{
+				if(nextA == tabB[i])
+				{
+                    check=0;
+                    stopNode=i;
+                    break;
+				}
+			}
+
+            currentA=nextA;
+//		    currentB=nextB;
+
+		}
+		else{
+		//path->theChemin[sizeB]=&theProblem->edges[findIndex(nextB, currentB,theProblem)];// add indice new edge en B
+		tabB[sizeB]=nextB;
+		sizeB++;
+		// check tab en A: stop ou non
+		tabA[sizeA]=nextA;
+		sizeA++;
+
+		for(i=0; i<sizeA; i++)
+		{
+			if(nextB == tabA[i])
+			{
+				check=0;
+				stopNode=i;
+
+
+				int count=0;
+				if(tabA[stopNode]==-1) tabA[stopNode]=0;
+				for(i=stopNode; i>=1; i--)
+				{
+
+				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+				count++;
+				}
+				delete[] tabA;
+				delete[] tabB;
+				path->size=count+sizeB;
+
+				break;
+			}
+		}
+		for(i=0; i<sizeB; i++)
+		{
+			if(nextA == tabB[i])
+			{
+				check=0;
+				stopNode=i;
+				int count;
+				if(tabB[stopNode]==-1) tabB[stopNode]=0;
+				for(i=stopNode; i>=1; i--)
+				{
+				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+				count++;
+				}
+				delete[] tabA;
+				delete[] tabB;
+				path->size=count+sizeA;
+				break;
+			}
+
+		}
+		for(i=0; i<sizeB; i++)
+		{
+			if(nextA == tabB[i])
+			{
+				check=0;
+				stopNode=i;
+				int count;
+				if(tabB[stopNode]==-1) tabB[stopNode]=0;
+				for(i=stopNode; i>=1; i--)
+				{
+				path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+				count++;
+				}
+				delete[] tabA;
+				delete[] tabB;
+				path->size=count+sizeA;
+				break;
+			}
+
+		}
+		currentA=nextA;
+		currentB=nextB;
+		}
+		printf("check... \n");
+	}
+
+	int count=0;
+	if(tabA[stopNode]==-1) tabA[stopNode]=0;
+
+	for(i=stopNode; i>=1; i--)
+	{
+		path->theChemin[sizeB+count]=&theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
+		count++;
+	}
+	delete[] tabA;
+	path->size=count+sizeB;
+	return path;
+	printf("set flow: ok find path \n");
+}*/
+
+///////////////////////////////////:

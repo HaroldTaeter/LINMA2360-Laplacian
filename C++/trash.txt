@@ -1,3 +1,64 @@
+	double* probaCompute(Problem *theProblem)
+{
+    int nEdgesOffTree = theProblem->nEdge - (theProblem->nNode-1);
+
+    double *probabilities = new double[nEdgesOffTree];
+
+    int edgesFound = 0;
+
+    for(int i = 0; i < theProblem->nEdge; i++) // PROBABLEMENT OK mais un peu barbare (ça arrive :p)
+    {
+        bool entered = false;
+        for(int j = 0; j < (theProblem->nNode-1); j++)
+        {
+            if(theProblem->edges[i].indice == theProblem->theTree.edgesTree[j]->indice)
+            {
+                entered = true;
+                break;
+            }
+        }
+        if(!entered)
+        {
+            probabilities[edgesFound] = probabilityEdge(&theProblem->edges[i], theProblem);
+            edgesFound = edgesFound + 1;
+        }
+    }
+
+	for(i=0; i<nEdgesOffTree; i++)
+	{
+		printf(" edges number %d off the tree has indice= %d and proba=%f \n",i,theProblem->edgesOffTree[i]->indice,)
+	}
+    double *cumulatedProba = new double[nEdgesOffTree+1];
+    cumulatedProba[0] = 0.0;
+    for(int i = 1; i <= nEdgesOffTree; i++)
+    {
+        cumulatedProba[i] = cumulatedProba[i-1] + probabilities[i-1];
+    }
+
+    return cumulatedProba;
+}
+
+	
+	
+	/*
+	for(int i = 0; i < theProblem->nEdge; i++)
+    {
+        printf("%d \n", theProblem->edges[i].indice);
+        printf("%f \n", theProblem->edges[i].weight);
+        printf("%d %d \n", theProblem->edges[i].a->indice, theProblem->edges[i].b->indice);
+        printf("\n");
+    }
+
+    for(int i = 0; i < theProblem->nNode; i++)
+    {
+        printf("%d \n", theProblem->nodes[i].indice);
+        printf("%d \n", theProblem->nodes[i].degree);
+        printf("\n");
+    }*/
+
+
+
+
 // ON N'UTILISE PLUS CETTE FONCTION POUR L'INSTANT !
 //Chemin* DFS(Edge *edgeCurrent,Problem *theProblem)
 //{
