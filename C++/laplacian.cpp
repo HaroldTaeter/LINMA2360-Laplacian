@@ -1,5 +1,5 @@
 /*
- *  laplacian.c
+ *  laplacian.cpp
  *
  */
 
@@ -644,7 +644,6 @@ double* probaCompute(Problem *theProblem)
             probabilities[i] = probabilities[i]/sumProba;
 
     }
-	
 	
 	for(i=0; i<nEdgesOffTree; i++)
 	{

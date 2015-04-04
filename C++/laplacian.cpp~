@@ -1,5 +1,5 @@
 /*
- *  laplacian.c
+ *  laplacian.cpp
  *
  */
 
@@ -761,7 +761,7 @@ double* InducedVoltages2(Problem *theProblem)
         voltages[i] = 0.0;
     }
 
-    Tree finalTree = theProblem->theTree; // -> ou . ?
+    Tree finalTree = theProblem->theTree; 
     Node *source = finalTree.nodeSource;
 
     queue<int> myqueue;
