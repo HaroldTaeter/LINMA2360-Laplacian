@@ -25,6 +25,11 @@ void Solve(char *FileNameL,char *FileNameb)
 	Kruskal(theProblem);
 	printf("OK: Kruskal \n");
 
+	stretchs(theProblem);
+	printf("OK: Stretchs assigned \n");
+
+	chemins(theProblem);
+	printf("OK: Paths assigned \n");
 			// RUN
 	setFlow(0, theProblem->nNode-1, theProblem);
 	printf("OK: Set flow \n");
@@ -574,6 +579,34 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 
 }
 
+void stretchs(Problem *theProblem)
+{
+    double stretchTree = 0.0;
+
+    for(int i = 0; i < (theProblem->nEdge - (theProblem->nNode - 1)); i++)
+    {
+        Chemin *theChemin = findCycle(&theProblem->edgesOffTree[i], theProblem);
+        theProblem->edgesOffTree[i]->stretch = stretchEdge(&theProblem->edgesOffTree[i], theChemin);
+        stretchTree = stretchTree + theProblem->edgesOffTree[i]->stretch;
+    }
+
+    for(int i = 0; i < (theProblem->nNode - 1); i++)
+    {
+        theProblem->theTree.edgesTree[i]->stretch = 1;
+    }
+    stretchTree = stretchTree + theProblem->nNode - 1;
+
+    theProblem->theTree.stretch = stretchTree;
+}
+
+void chemins(Problem *theProblem)
+{
+    for(int i = 0; i<theProblem->nEdge; i++)
+    {
+        theProblem->edges[i]->edgeChemin = findCycle(theProblem->edges[i], theProblem);
+    }
+}
+
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////
 
 // ON Continue Jean Pierre ! ///
@@ -593,8 +626,8 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
     return stretch;
 }
 
-/* A VERIFIER */
-double stretchTree(Problem *theProblem)
+/* A VERIFIER */ /// Fonction inutile mtnt
+/*double stretchTree(Problem *theProblem)
 {
     double stretch = 0.0;// TODO je crois qu'on ne prend pas bien en compte que le stretch vaut 1
     			// si l'edge est dans l'arbre. Peut être que ça marche mais on devrait traiter le cas à part
@@ -606,7 +639,7 @@ double stretchTree(Problem *theProblem)
         stretch = stretch + stretchEdge(&theProblem->edges[i], theChemin);
     }
     return stretch;
-}
+}*/
 
 /* A VERIFIER */
 double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)

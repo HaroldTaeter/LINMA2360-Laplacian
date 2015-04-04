@@ -30,6 +30,8 @@ double weight;
 double f;
 Node *a;
 Node *b;
+double stretch;
+Chemin *edgeChemin;
 };
 
 typedef struct Tree Tree;
@@ -37,6 +39,7 @@ struct Tree {
 Node *nodeSource;
 int *predecessor;
 Edge **edgesTree;
+double stretch;
 };
 
 typedef struct Chemin Chemin;
