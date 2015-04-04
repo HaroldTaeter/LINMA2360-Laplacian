@@ -25,6 +25,9 @@ void Solve(char *FileNameL,char *FileNameb)
 	Kruskal(theProblem);	
 	printf("OK: Kruskal \n");
 	
+	stretchsAndChemins(theProblem);
+	printf("OK: Strech and Chemins \n");
+	
 			// RUN
 	setFlow(0, theProblem->nNode-1, theProblem);
 	printf("OK: Set flow \n");
@@ -230,6 +233,7 @@ for(i = 0; i < theProblem->nNode; i++)
 Tree arbreNew;
 arbreNew.edgesTree=NULL;
 arbreNew.nodeSource = &theProblem->nodes[0];
+arbreNew.stretch=0.0;
 theProblem->theTree= arbreNew;
 
 theProblem->theCumulatedProba=NULL;
@@ -237,15 +241,18 @@ FILE* fichier2 = NULL;
 fichier2 = fopen(FileNameb,"r+");
 theProblem->b= new double[theProblem->nNode];
 
-	if (fichier2 != NULL)
-	{
-		for(i=0; i<theProblem->nNode; i++)
-		{
-			fscanf(fichier,"%lf \n",&theProblem->b[i]);
-		}
-	}
-	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
+printf(" avant fichier2 \n");
 
+// TODO remettre, je sais pas pourquoi ça bug
+//	if (fichier2 != NULL)
+//	{
+//		for(i=0; i<theProblem->nNode; i++)
+//		{
+//			fscanf(fichier,"%lf \n",&theProblem->b[i]);
+//		}
+//	}
+//	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
+printf(" after fichier2 \n");
 theProblem->edgesSorted=new Edge[theProblem->nEdge];
 theProblem->edgesOffTree = new Edge*[theProblem->nEdge-(theProblem->nNode-1)];
 return theProblem;
@@ -262,6 +269,7 @@ int edgeCompare( const void * edgea, const void * edgeb)
 }
 void edgeSort(Problem *theProblem)
 {// TODO on pourrait avoir le tableau edgesSorted qui soit des pointeurs..
+// mais ça rend les cast bien bordeliques donc pas pour tout de suite !!
 	qsort(theProblem->edgesSorted, theProblem->nEdge, sizeof(Edge), edgeCompare);
 }
 
@@ -575,6 +583,37 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 
 }
 
+
+void stretchsAndChemins(Problem *theProblem)
+{
+    double stretchTree = 0.0;
+
+    for(int i = 0; i < (theProblem->nEdge - (theProblem->nNode - 1)); i++)
+    {
+        theProblem->edgesOffTree[i]->edgeChemin = findCycle(theProblem->edgesOffTree[i], theProblem);
+        theProblem->edgesOffTree[i]->stretch = stretchEdge(theProblem->edgesOffTree[i], theProblem->edgesOffTree[i]->edgeChemin);
+        stretchTree = stretchTree + theProblem->edgesOffTree[i]->stretch;
+    }
+
+    for(int i = 0; i < (theProblem->nNode - 1); i++)
+    {
+        theProblem->theTree.edgesTree[i]->stretch = 1;
+     	
+     	Chemin path;//= new Chemin[1];
+     	path.size=1; 
+     	path.theChemin=new Edge*[1];
+     	path.theChemin[0]=theProblem->theTree.edgesTree[i];
+     	theProblem->theTree.edgesTree[i]->edgeChemin=&path;// tout ça est fait un peu vite mais ma version devraitetre ok
+        //theProblem->theTree.edgesTree[i]->edgeChemin->size = 1;// les trucs en commentaire c'est ta version, A Enlever normalement!
+        //theProblem->theTree.edgesTree[i]->edgeChemin->theChemin[0] = theProblem->theTree.edgesTree[i];
+    }
+    stretchTree = stretchTree + (theProblem->nNode - 1);
+
+    theProblem->theTree.stretch = stretchTree;
+}
+
+
+
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////
 
 // ON Continue Jean Pierre ! ///
@@ -612,9 +651,14 @@ double stretchTree(Problem *theProblem)
 /* A VERIFIER */
 double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 {
-    Chemin *theChemin = findCycle(edgeCurrent, theProblem);
-    double stretchE = stretchEdge(edgeCurrent, theChemin);
-    double stretchT = stretchTree(theProblem);
+    //Chemin *theChemin = findCycle(edgeCurrent, theProblem); a enlever bientot
+
+    double stretchE = edgeCurrent->stretch;// a garder
+    //double stretchE = stretchEdge(edgeCurrent, theChemin);// devra partir
+    
+    double stretchT = theProblem->theTree.stretch;// A garder
+    //double stretchT = stretchTree(theProblem);// devra partir
+    
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
     int m = theProblem->nEdge;
@@ -664,7 +708,9 @@ double* probaCompute(Problem *theProblem)
 /* A VERIFIER */
 int iterationsK(Problem *theProblem, double eps)
 {
-    double stretchT = stretchTree(theProblem);
+    //double stretchT = stretchTree(theProblem); a virer bientot
+    double stretchT = theProblem->theTree.stretch;
+    
     int m = theProblem->nEdge;
     int n = theProblem->nNode;
     double CondNum = stretchT + m - 2*n + 2;
@@ -677,6 +723,9 @@ int iterationsK(Problem *theProblem, double eps)
 void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
 {
 
+	// TODO faire des simplifications ici car si tout est ok, 
+	// on ne doit plus recalculer les chemins, ils sont connus
+	
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
     Chemin *myChemin = findCycle(edgeCurrent, theProblem);
     Edge **edgesChemin = myChemin->theChemin;

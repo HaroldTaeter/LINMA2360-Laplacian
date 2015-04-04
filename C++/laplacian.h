@@ -30,6 +30,8 @@ double weight;
 double f;
 Node *a;
 Node *b;
+double stretch;
+struct Chemin *edgeChemin;
 };
 
 typedef struct Tree Tree;
@@ -37,6 +39,7 @@ struct Tree {
 Node *nodeSource;
 int *predecessor;
 Edge **edgesTree;
+double stretch;
 };
 
 typedef struct Chemin Chemin;
@@ -79,7 +82,7 @@ int 			iterationsK(Problem *theProblem, double eps);
 double* 		probaCompute(Problem *theProblem);
 //Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
 double        		stretchEdge(Edge *edgeCurrent, Chemin *Chemin);
-double          	stretchTree(Problem *theProblem);
+//double          	stretchTree(Problem *theProblem);
 double          	probabilityEdge(Edge *edgeCurrent, Problem *theProblem);
 double*         	probaCompute(Problem *theProblem);
 int             	iterationsK(Problem *theProblem, double eps);
@@ -87,4 +90,5 @@ void            	CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
 Edge*           	RandomPicking(Problem *theProblem, Edge **edgesOffTree);
 double*         	InducedVoltages(Problem *theProblem);
 double*         	InducedVoltages2(Problem *theProblem);
+void                stretchsAndChemins(Problem *theProblem);
 #endif
