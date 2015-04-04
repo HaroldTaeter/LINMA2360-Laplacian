@@ -61,12 +61,14 @@ void Solve(char *FileNameL,char *FileNameb)
 
 	/*Kruskal(theProblem);
 	printf("OK: Kruskal \n");
-	
-        setFlow(0, theProblem->nNode-1, theProblem);
-	printf("OK: Set flow \n");
-		
-	theProblem->theCumulatedProba=probaCompute(theProblem);
 
+
+	setFlow(0, theProblem->nNode-1, theProblem);
+	printf("OK: Set flow \n");
+
+
+
+	theProblem->theCumulatedProba=probaCompute(theProblem);
 	int iter;
 	int iterMax= iterationsK(theProblem, 0.0001);
 	for(iter=0; iter<iterMax; iter++)
@@ -85,11 +87,41 @@ void Solve(char *FileNameL,char *FileNameb)
 //		printf(" edge %d du chemin a l'indice %d \n ", i, pathTest->theChemin[i]->indice);
 //	}
 
-	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
-	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
-	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
-	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
-	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
+
+//	for (i=0; i<theProblem->nEdge; i++)
+//	{
+//		printf(" edge d'indice %d goes from node %d to node %d \n",theProblem->edges[i].indice,
+//				theProblem->edges[i].a->indice,theProblem->edges[i].b->indice);
+//	}
+//	for(i=0; i< theProblem->nNode-1; i++)
+//	{
+//		printf("weight of edge d'indice %d in tree is %f \n", theProblem->theTree.edgesTree[i]->indice,
+//				 theProblem->theTree.edgesTree[i]->weight);
+//	}
+
+//	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
+//	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
+//	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
+//	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
+//	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
+
+//	for(i=0; i< theProblem->nEdge; i++)
+//	{
+//		printf("weight of edge d'indice %d has flot:  %lf \n", theProblem->edges[i].indice,
+//				 theProblem->edges[i].f);
+//	}
+
+
+	//Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
+
+	//Chemin *wayTest=findCycle( &theProblem->edges[3], theProblem );
+
+	//printf("ok way \n");
+	//printf("wayTest.size= %d \n", wayTest->size);
+//	for(i=0; i<wayTest->size; i++)
+//	{
+//		printf("edge[%d].indice = %d \n", i, wayTest->theChemin[i]->indice);
+//	}
 }
 
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
@@ -144,11 +176,9 @@ fichier = fopen(FileNameL,"r+");
 
 		fseek(fichier,18,SEEK_CUR); // WINDOWS : 19
 		fscanf(fichier,"%d",&theProblem->nEdge);
-
 		printf("Nombre d'edges %d\n",theProblem->nEdge);
-// OK ??? TODO
-		fseek(fichier,1,SEEK_CUR);
 
+		fseek(fichier,1,SEEK_CUR);
 
 		double **tableau = (double**) malloc(nNode*sizeof(double*));
 		for (i = 0; i < nNode; i++)
@@ -160,13 +190,12 @@ fichier = fopen(FileNameL,"r+");
 			{
 				fseek(fichier,1,SEEK_CUR);
 				fscanf(fichier,"%lf",&tableau[row][column]);
-				//printf("%f ", tableau[row][column]);
+				printf("%f ", tableau[row][column]);
 				tableau[row][column]= -tableau[row][column];
 				if(row == column)	tableau[row][row]=0.0;
 			}
-//			printf("\n");
+			printf("\n");
 		}
-		
 		fclose(fichier);
 		printf("\n");
 
@@ -184,6 +213,7 @@ fichier = fopen(FileNameL,"r+");
 //			printf("%f", theProblem->Weights[i][j]);
 //		}
 //	printf("\n");
+
 //	}
 
 
@@ -260,27 +290,27 @@ theProblem->b= new double[theProblem->nNode];
 		{
 			fscanf(fichier,"%lf \n",&theProblem->b[i]);
 		}
+
 	}
 	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
 
-theProblem->edgesSorted=new Edge[theProblem->nEdge];
-theProblem->edgesOffTree = new Edge*[theProblem->nEdge-(theProblem->nNode-1)];
 return theProblem;
+
 }
 
 		  /////////////////////////////////////////////////////////////////////////
 		 //////////////////////// KRUSKAL & Cie //////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////
 
-int edgeCompare( const void * edgea, const void * edgeb)
+/*int edgeCompare( const void * edgea, const void * edgeb)
 {
-	//return (  (*(Edge*)edgea).weight- (*(Edge*)edgeb).weight);
-	return (  -(*(Edge*)edgea).weight+ (*(Edge*)edgeb).weight);// max weight spanning tree
+	return (  (*(Edge*)edgea).weight- (*(Edge*)edgeb).weight);
 }
+
 void edgeSort(Problem *theProblem)
-{// TODO on pourrait avoir le tableau edgesSorted qui soit des pointeurs..
-	qsort(theProblem->edgesSorted, theProblem->nEdge, sizeof(Edge), edgeCompare);
-}
+{
+	qsort(theProblem->edges, theProblem->nEdge, sizeof(Edge), edgeCompare);
+}*/
 
 
 /*
@@ -291,44 +321,45 @@ Applies Kruskal's algorithm to find a (min weight) spanning tree. Initialises th
 */
 void Kruskal(Problem *theProblem)
 {
-    	int i,j,k,a,b,u,v,ne=1;
-    	int n = theProblem->nNode;
-   	theProblem->theTree.edgesTree=new Edge*[theProblem->nNode-1];
+    int i,j,k,a,b,u,v,ne=1;
+    int n = theProblem->nNode;
+    int min,mincost=0;
+    int Wmax=999;
+    theProblem->theTree.edgesTree=new Edge*[theProblem->nNode-1];
 
-	for(i=0; i<theProblem->nEdge;i++)
-	{
-	theProblem->edgesSorted[i]=theProblem->edges[i]; 
-	}
-    	int compteurTree=0;
-	int compteurOffTree=0;
-	edgeSort(theProblem);	
-        int iter;	
-	for(iter=0; iter<theProblem->nEdge; iter++)
-	{
-		i=theProblem->edgesSorted[iter].a->indice;
-		j=theProblem->edgesSorted[iter].b->indice;
-		a=u=i;
-		b=v=j;
-		u=find(u);
-	    	v=find(v);
-    		if(uni(u,v))
-    		{	
-    		theProblem->theTree.edgesTree[compteurTree]=&theProblem->edges[findIndex(a,b,theProblem)];
+  //  int *treeIndex= malloc((theProblem->nNode-1)*sizeof(int));
+    //  Edge **treeIndex= new Edge*[theProblem->nNode-1];// ((theProblem->nNode-1)*sizeof(int));
+    int compteur=0;
+//    delete[] treeIndex;
+//
+//    x = new int; => delete x;
+    while(ne <theProblem->nNode)
+    	 {
+    		for(i=0,min=Wmax;i<n;i++)
+    		{
+    			for(j=0;j < n;j++)
+    			{
+    				if(theProblem->Weights[i][j] < min && theProblem->Weights[i][j] >0 )
+    				{
+    					min=theProblem->Weights[i][j];
+    					a=u=i;
+    					b=v=j;
+    				}
+    			}
+    		}
+    	u=find(u);
+    	v=find(v);
+    	if(uni(u,v))
+    	{
+    		//treeIndex[compteur]=findIndex(a,b,theProblem);
+    		theProblem->theTree.edgesTree[compteur]=&theProblem->edges[findIndex(a,b,theProblem)];
     		ne++;
-    		compteurTree++;
-    		}	
-    		else{
-    		theProblem->edgesOffTree[compteurOffTree]=&theProblem->edges[findIndex(a,b,theProblem)];
-    		compteurOffTree++;
-	    	}
-    		if (ne==theProblem->nNode){ break;} 
-	}
-	    for(iter=ne-1; iter< theProblem->nEdge; iter++)
-	    {
-	    	theProblem->edgesOffTree[compteurOffTree]=&theProblem->edgesSorted[iter];
-    		compteurOffTree++;
-	    }
-	
+    		compteur++;
+    		mincost +=min;
+    	}
+    		theProblem->Weights[a][b]=theProblem->Weights[b][a]=Wmax;
+    	}
+
     	/// Maintenant on rempli predecessor en faisant DFS
     	theProblem->theTree.nodeSource = new Node[1];
     	theProblem->theTree.predecessor= new int[theProblem->nNode-1];
@@ -529,10 +560,10 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 
     delete[] tabA;
     delete[] tabB;
-//		printf("set flow: ok find path \n");
+
+    printf("set flow: ok find path \n");
+
 	return path;
-
-
 }
 
 /*

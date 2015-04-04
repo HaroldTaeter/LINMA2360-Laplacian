@@ -56,7 +56,6 @@ Edge **edgesOffTree;
 double **Weights;
 double *b;
 Tree theTree;
-Edge **edgesOffTree;
 double *theCumulatedProba;
 
 };
