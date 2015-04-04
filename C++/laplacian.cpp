@@ -25,11 +25,8 @@ void Solve(char *FileNameL,char *FileNameb)
 	Kruskal(theProblem);
 	printf("OK: Kruskal \n");
 
-	stretchs(theProblem);
-	printf("OK: Stretchs assigned \n");
-
-	chemins(theProblem);
-	printf("OK: Paths assigned \n");
+	//stretchsAndChemins(theProblem);
+	printf("OK: Stretchs and paths assigned \n");
 			// RUN
 	setFlow(0, theProblem->nNode-1, theProblem);
 	printf("OK: Set flow \n");
@@ -579,32 +576,26 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 
 }
 
-void stretchs(Problem *theProblem)
+void stretchsAndChemins(Problem *theProblem)
 {
     double stretchTree = 0.0;
 
     for(int i = 0; i < (theProblem->nEdge - (theProblem->nNode - 1)); i++)
     {
-        Chemin *theChemin = findCycle(&theProblem->edgesOffTree[i], theProblem);
-        theProblem->edgesOffTree[i]->stretch = stretchEdge(&theProblem->edgesOffTree[i], theChemin);
+        theProblem->edgesOffTree[i]->edgeChemin = findCycle(theProblem->edgesOffTree[i], theProblem);
+        theProblem->edgesOffTree[i]->stretch = stretchEdge(theProblem->edgesOffTree[i], theProblem->edgesOffTree[i]->edgeChemin);
         stretchTree = stretchTree + theProblem->edgesOffTree[i]->stretch;
     }
 
     for(int i = 0; i < (theProblem->nNode - 1); i++)
     {
         theProblem->theTree.edgesTree[i]->stretch = 1;
+        theProblem->theTree.edgesTree[i]->edgeChemin->size = 1;
+        theProblem->theTree.edgesTree[i]->edgeChemin->theChemin[0] = theProblem->theTree.edgesTree[i];
     }
-    stretchTree = stretchTree + theProblem->nNode - 1;
+    stretchTree = stretchTree + (theProblem->nNode - 1);
 
     theProblem->theTree.stretch = stretchTree;
-}
-
-void chemins(Problem *theProblem)
-{
-    for(int i = 0; i<theProblem->nEdge; i++)
-    {
-        theProblem->edges[i]->edgeChemin = findCycle(theProblem->edges[i], theProblem);
-    }
 }
 
 ////////////////////////// HAROLD'S PRATICE /////////////////////////////
@@ -646,7 +637,8 @@ double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 {
     Chemin *theChemin = findCycle(edgeCurrent, theProblem);
     double stretchE = stretchEdge(edgeCurrent, theChemin);
-    double stretchT = stretchTree(theProblem);
+    //double stretchT = stretchTree(theProblem);
+    double stretchT = theProblem->theTree.stretch;
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
     int m = theProblem->nEdge;
@@ -697,7 +689,8 @@ double* probaCompute(Problem *theProblem)
 /* A VERIFIER */
 int iterationsK(Problem *theProblem, double eps)
 {
-    double stretchT = stretchTree(theProblem);
+    //double stretchT = stretchTree(theProblem);
+    double stretchT = theProblem->theTree.stretch;
     int m = theProblem->nEdge;
     int n = theProblem->nNode;
     double CondNum = stretchT + m - 2*n + 2;
