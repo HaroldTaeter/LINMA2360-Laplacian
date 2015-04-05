@@ -60,13 +60,14 @@ double **Weights;
 double *b;
 Tree theTree;
 double *theCumulatedProba;
+int *parent;
 
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
 double 			testKPL(Edge *edgeCurrent);
 int 			inTree(Edge *edgea,Problem *theProblem);
-int 			find(int i);
+int 			find(int i, Problem *theProblem);
 int 			uni(int i,int j);
 int 			findIndex(int a,int b,Problem *theProblem);
 Problem 		*createProblem(char *FileNameL, char *FileNameb);
@@ -88,5 +89,5 @@ void            	CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
 Edge*           	RandomPicking(Problem *theProblem, Edge **edgesOffTree);
 double*         	InducedVoltages(Problem *theProblem);
 double*         	InducedVoltages2(Problem *theProblem);
-void                stretchsAndChemins(Problem *theProblem);
+void                	stretchsAndChemins(Problem *theProblem);
 #endif

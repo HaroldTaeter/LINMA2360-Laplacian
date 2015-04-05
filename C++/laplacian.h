@@ -60,14 +60,15 @@ double **Weights;
 double *b;
 Tree theTree;
 double *theCumulatedProba;
+int *parent;
 
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
 double 			testKPL(Edge *edgeCurrent);
 int 			inTree(Edge *edgea,Problem *theProblem);
-int 			find(int i);
-int 			uni(int i,int j);
+int 			find(int i, Problem *theProblem);
+int 			uni(int i,int j, Problem *theProblem);
 int 			findIndex(int a,int b,Problem *theProblem);
 Problem 		*createProblem(char *FileNameL, char *FileNameb);
 Chemin* 		findCycle(Edge *edgeCurrent,Problem *theProblem);

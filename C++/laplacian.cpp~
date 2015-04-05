@@ -7,9 +7,6 @@
 
 using namespace std;
 
-static int parent[9];
-
-
 /*
 Solve:
 Main function that runs the algorithm after initialization of the data
@@ -18,6 +15,7 @@ Main function that runs the algorithm after initialization of the data
 */
 void Solve(char *FileNameL,char *FileNameb)
 {
+	
 	int i;
 	Problem *theProblem= createProblem(FileNameL, FileNameb);
 	printf("OK: Problem created \n");
@@ -33,21 +31,18 @@ void Solve(char *FileNameL,char *FileNameb)
 	printf("OK: Set flow \n");
 		
 	theProblem->theCumulatedProba=probaCompute(theProblem);
-//	for(i=0; i<theProblem->nEdge - (theProblem->nNode-1) +1 ; i++)
-//	{
-//		printf("cumulatedProba[%d]=%f \n",i,theProblem->theCumulatedProba[i]);
-//	}
-	
+
 	int iter;
-	int iterMax= iterationsK(theProblem, 0.01);
+	int iterMax= iterationsK(theProblem, 0.001);
+	printf("iterMax=%d \n", iterMax);
 	for(iter=0; iter<iterMax; iter++)
 	{
-		printf(" //////// Iteration number: %d /////////////\n", iter);
+		//printf(" //////// Iteration number: %d /////////////\n", iter);
 		Edge *edgeCurrent = RandomPicking(theProblem, theProblem->edgesOffTree);
-		printf(" edgeCurrent->indice = %d \n", edgeCurrent->indice);
+		//printf(" edgeCurrent->indice = %d \n", edgeCurrent->indice);
 		CycleUpdate(edgeCurrent, theProblem);
-		double Delta=testKPL(edgeCurrent);
-		printf("Delta after cycleUpdate = %f \n", Delta);
+		//double Delta=testKPL(edgeCurrent);
+		//printf("Delta after cycleUpdate = %f \n", Delta);
 	}
 	
     double *voltages = new double[theProblem->nNode];
@@ -63,7 +58,6 @@ void Solve(char *FileNameL,char *FileNameb)
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
 {
 	Chemin* path= findPath(indexNodeA, indexNodeB, theProblem);
-	printf("set flow: path ok \n");
 	int i;
 	int indiceCurrent = indexNodeA;
 	for(i = 0; i < path->size; i++)
@@ -233,6 +227,7 @@ theProblem->b= new double[theProblem->nNode];
 	
 theProblem->edgesSorted=new Edge[theProblem->nEdge];
 theProblem->edgesOffTree = new Edge*[theProblem->nEdge-(theProblem->nNode-1)];
+theProblem->parent = new int[theProblem->nNode];
 return theProblem;
 }
 
@@ -277,9 +272,9 @@ void Kruskal(Problem *theProblem)
 		j=theProblem->edgesSorted[iter].b->indice;
 		a=u=i;
 		b=v=j;
-		u=find(u);
-	    	v=find(v);
-    		if(uni(u,v))
+		u=find(u, theProblem);
+	    	v=find(v, theProblem);
+    		if(uni(u,v, theProblem))
     		{	
     		theProblem->theTree.edgesTree[compteurTree]=&theProblem->edges[findIndex(a,b,theProblem)];
     		ne++;
@@ -296,7 +291,6 @@ void Kruskal(Problem *theProblem)
 	    	theProblem->edgesOffTree[compteurOffTree]=&theProblem->edgesSorted[iter];
     		compteurOffTree++;
 	    }
-	
     	/// Maintenant on rempli predecessor en faisant DFS
     	theProblem->theTree.nodeSource = new Node[1];
     	theProblem->theTree.predecessor= new int[theProblem->nNode-1];
@@ -332,7 +326,6 @@ void Kruskal(Problem *theProblem)
             		}		
                	}
     	}
-
 }
 
 /*
@@ -341,10 +334,10 @@ Needed in Kruskal's algorithm
 @pre:
 @post:
 */
-int find(int i)
+int find(int i, Problem *theProblem)
 {
-	while(parent[i])
-	i=parent[i];
+	while(theProblem->parent[i])
+	i=theProblem->parent[i];
 	return i;
 }
 /*
@@ -353,11 +346,11 @@ Needed in Kruskal's algorithm
 @pre:
 @post:
 */
-int uni(int i,int j)
+int uni(int i,int j, Problem *theProblem)
 {
     	if(i!=j)
     	{
-    		parent[j]=i;
+    		theProblem->parent[j]=i;
     		return 1;
     	}
     	return 0;
@@ -720,6 +713,8 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
     	}
     
     }
+    if(Delta != 0.0)
+    {
     edgeCurrent->f = edgeCurrent->f - Delta/Re;
 
     indiceCurrent = edgeCurrent->b->indice;
@@ -735,6 +730,7 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
             edgesChemin[i]->f = edgesChemin[i]->f + Delta/Re;
             indiceCurrent = edgesChemin[i]->a->indice;
         }
+    }
     }
 }
 

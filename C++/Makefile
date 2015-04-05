@@ -14,7 +14,7 @@ CFLAGS   = -O3 -Dgraphic -g -Wall
 LFLAGS   = -Wall -O3 -g
 LIBS     = -lglfw -lm -lGL -lglut -lGLU -lpthread 
 #
-PROG     = myLaplacian
+PROG     = myLaplacian.exe
 LISTEOBJ = \
   laplacian.o main.o #glfem.o #graphic.o
 # ATTENTION... aucun caractere apres le caractere de continuation "\"
