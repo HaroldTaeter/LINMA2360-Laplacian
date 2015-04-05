@@ -64,7 +64,7 @@ double *theCumulatedProba;
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */
-
+double 			testKPL(Edge *edgeCurrent);
 int 			inTree(Edge *edgea,Problem *theProblem);
 int 			find(int i);
 int 			uni(int i,int j);
@@ -80,9 +80,7 @@ Chemin* 		findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem);
 Edge* 			RandomPicking(Problem *theProblem, Edge **edgesOffTree);
 int 			iterationsK(Problem *theProblem, double eps);
 double* 		probaCompute(Problem *theProblem);
-//Chemin* 		DFS(Edge *edgeCurrent,Problem *theProblem);
 double        		stretchEdge(Edge *edgeCurrent, Chemin *Chemin);
-//double          	stretchTree(Problem *theProblem);
 double          	probabilityEdge(Edge *edgeCurrent, Problem *theProblem);
 double*         	probaCompute(Problem *theProblem);
 int             	iterationsK(Problem *theProblem, double eps);
@@ -90,5 +88,5 @@ void            	CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
 Edge*           	RandomPicking(Problem *theProblem, Edge **edgesOffTree);
 double*         	InducedVoltages(Problem *theProblem);
 double*         	InducedVoltages2(Problem *theProblem);
-void                stretchsAndChemins(Problem *theProblem);
+void                	stretchsAndChemins(Problem *theProblem);
 #endif

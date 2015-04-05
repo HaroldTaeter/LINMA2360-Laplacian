@@ -39,14 +39,15 @@ void Solve(char *FileNameL,char *FileNameb)
 //	}
 	
 	int iter;
-	int iterMax= iterationsK(theProblem, 0.0001);
-	//for(iter=0; iter<iterMax; iter++)
-	for(iter=0; iter<20; iter++)
+	int iterMax= iterationsK(theProblem, 0.01);
+	for(iter=0; iter<iterMax; iter++)
 	{
 		printf(" //////// Iteration number: %d /////////////\n", iter);
 		Edge *edgeCurrent = RandomPicking(theProblem, theProblem->edgesOffTree);
 		printf(" edgeCurrent->indice = %d \n", edgeCurrent->indice);
 		CycleUpdate(edgeCurrent, theProblem);
+		double Delta=testKPL(edgeCurrent);
+		printf("Delta after cycleUpdate = %f \n", Delta);
 	}
 	
     double *voltages = new double[theProblem->nNode];
@@ -57,26 +58,6 @@ void Solve(char *FileNameL,char *FileNameb)
     {
         printf("Voltage on node %d = %f \n",i,voltages[i]);
     }
-
-			// TEST
-//Chemin* pathTest = findCycle(&theProblem->edges[6],theProblem);
-
-////	Chemin *pathTest = findPath(1 ,4 , theProblem);
-//	for(i=0; i<pathTest->size; i++)
-//	{
-//		printf(" edge %d du chemin a l'indice %d \n ", i, pathTest->theChemin[i]->indice);
-//	}
-
-			// TEST 
-//	for(i=0; i<theProblem->nNode-1; i++)
-//	{
-//		printf("l'edge %d du tree a pour indice: %d \n", i, theProblem->theTree.edgesTree[i]->indice);
-//	}
-//	printf(" predecessor[0]=%d \n ",theProblem->theTree.predecessor[0]);
-//	printf(" predecessor[1]=%d \n ",theProblem->theTree.predecessor[1]);
-//	printf(" predecessor[2]=%d \n ",theProblem->theTree.predecessor[2]);
-//	printf(" predecessor[3]=%d \n ",theProblem->theTree.predecessor[3]);
-//	printf(" predecessor[4]=%d \n ",theProblem->theTree.predecessor[4]);
 }
 
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
@@ -163,14 +144,14 @@ fichier = fopen(FileNameL,"r+");
 		printf("Impossible d'ouvrir le fichier dataL.txt");
 	}
 
-	for(i=0;i<theProblem->nNode; i++)
-	{
-		for(j=0; j<theProblem->nNode; j++)
-		{
-			printf(" %f ", theProblem->Weights[i][j]);
-		}
-	printf("\n");
-	}
+//	for(i=0;i<theProblem->nNode; i++)
+//	{
+//		for(j=0; j<theProblem->nNode; j++)
+//		{
+//			printf(" %f ", theProblem->Weights[i][j]);
+//		}
+//	printf("\n");
+//	}
 
 
 //int nNode=theProblem->nNode;
@@ -241,18 +222,15 @@ FILE* fichier2 = NULL;
 fichier2 = fopen(FileNameb,"r+");
 theProblem->b= new double[theProblem->nNode];
 
-printf(" avant fichier2 \n");
-
-// TODO remettre
-//	if (fichier2 != NULL)
-//	{
-//		for(i=0; i<theProblem->nNode; i++)
-//		{
-//			fscanf(fichier,"%lf \n",&theProblem->b[i]);
-//		}
-//	}
-//	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
-printf(" after fichier2 \n");
+	if (fichier2 != NULL)
+	{
+		for(i=0; i<theProblem->nNode; i++)
+		{
+			fscanf(fichier2,"%lf \n",&theProblem->b[i]);
+		}
+	}
+	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
+	
 theProblem->edgesSorted=new Edge[theProblem->nEdge];
 theProblem->edgesOffTree = new Edge*[theProblem->nEdge-(theProblem->nNode-1)];
 return theProblem;
@@ -264,7 +242,6 @@ return theProblem;
 
 int edgeCompare( const void * edgea, const void * edgeb)
 {
-	//return (  (*(Edge*)edgea).weight- (*(Edge*)edgeb).weight);
 	return (  -(*(Edge*)edgea).weight+ (*(Edge*)edgeb).weight);// max weight spanning tree
 }
 void edgeSort(Problem *theProblem)
@@ -547,13 +524,9 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
         path->theChemin[stopNodeB+(stopNodeA-i)] = &theProblem->edges[findIndex(tabA[i],tabA[i-1],theProblem)];
     }
     path->size = stopNodeA+stopNodeB;
-
     delete[] tabA;
     delete[] tabB;
-//		printf("set flow: ok find path \n");
-	return path;
-
-
+    return path;
 }
 
 /*
@@ -583,6 +556,31 @@ Chemin* findCycle(Edge *edgeCurrent,Problem *theProblem)
 
 }
 
+
+/*
+For an edge offTree, returns the value of Delta on the cycle ()
+*/
+double testKPL(Edge *edgeCurrent)
+{
+    double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
+    Edge **edgesChemin = edgeCurrent->edgeChemin->theChemin;  
+    int indiceCurrent = edgeCurrent->b->indice;
+    for(int i = 0; i < edgeCurrent->edgeChemin->size; i++)
+    {   
+        if(indiceCurrent == edgesChemin[i]->a->indice)
+        {        
+        Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
+    	indiceCurrent = edgesChemin[i]->b->indice;
+    	}
+    	else
+    	{
+    	Delta = Delta - (edgesChemin[i]->f)/(edgesChemin[i]->weight);
+    	indiceCurrent = edgesChemin[i]->a->indice;
+    	}
+    }
+    
+    return Delta;
+}
 
 void stretchsAndChemins(Problem *theProblem)
 {
@@ -634,36 +632,15 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
 }
 
 /* A VERIFIER */
-double stretchTree(Problem *theProblem)
-{
-    double stretch = 0.0;// TODO je crois qu'on ne prend pas bien en compte que le stretch vaut 1
-    			// si l'edge est dans l'arbre. Peut être que ça marche mais on devrait traiter le cas à part
-    			// quand on precompetura tout à l'anvance
-
-    for(int i = 0; i < theProblem->nEdge; i++)
-    {
-        Chemin *theChemin = findCycle(&theProblem->edges[i], theProblem);
-        stretch = stretch + stretchEdge(&theProblem->edges[i], theChemin);
-    }
-    return stretch;
-}
-
-/* A VERIFIER */
 double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 {
-    //Chemin *theChemin = findCycle(edgeCurrent, theProblem); a enlever bientot
-
-    double stretchE = edgeCurrent->stretch;// a garder
-    //double stretchE = stretchEdge(edgeCurrent, theChemin);// devra partir
-    
-    double stretchT = theProblem->theTree.stretch;// A garder
-    //double stretchT = stretchTree(theProblem);// devra partir
-    
+    double stretchE = edgeCurrent->stretch;
+    double stretchT = theProblem->theTree.stretch;    
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
     int m = theProblem->nEdge;
     int n = theProblem->nNode;
-    double CondNum = stretchT + m - 2*n + 2.0;
+    double CondNum = stretchT + m - 2.0*n + 2.0;
     double probability = (1/CondNum)*(Re/re);
 
     return probability;
@@ -675,26 +652,26 @@ double* probaCompute(Problem *theProblem)
     int nEdgesOffTree = theProblem->nEdge - (theProblem->nNode-1);
 
     double *probabilities = new double[nEdgesOffTree];
-	double sumProba=0.0;
-    //int edgesFound = 0;
-	int i; 
+    double sumProba=0.0;
+    int i; 
     for(i = 0; i < nEdgesOffTree; i++) // les probas correspondent à l'ordre de edgesOffTree
     {
             probabilities[i] = probabilityEdge(theProblem->edgesOffTree[i],theProblem);
             sumProba +=     probabilities[i];   
     }
-	for(i = 0; i < nEdgesOffTree; i++) // TODO problem a régler ! La somme ne vaut pas 1 donc j'ai normalisé.
+    
+    for(i = 0; i < nEdgesOffTree; i++) // TODO problem a régler ! La somme ne vaut pas 1 donc j'ai normalisé.
     {
             probabilities[i] = probabilities[i]/sumProba;
 
     }
 	
-	for(i=0; i<nEdgesOffTree; i++)
-	{
-		printf(" edges number %d off the tree has indice= %d and proba=%f \n",i,theProblem->edgesOffTree[i]->indice, 
-			probabilities[i]);
-	}
-	
+//	for(i=0; i<nEdgesOffTree; i++)
+//	{
+//		printf(" edges number %d off the tree has indice= %d and proba=%f \n",i,theProblem->edgesOffTree[i]->indice, 
+//			probabilities[i]);
+//	}
+//	
 	
     double *cumulatedProba = new double[nEdgesOffTree+1];
     cumulatedProba[0] = 0.0;
@@ -708,9 +685,7 @@ double* probaCompute(Problem *theProblem)
 /* A VERIFIER */
 int iterationsK(Problem *theProblem, double eps)
 {
-    //double stretchT = stretchTree(theProblem); a virer bientot
-    double stretchT = theProblem->theTree.stretch;
-    
+    double stretchT = theProblem->theTree.stretch;   
     int m = theProblem->nEdge;
     int n = theProblem->nNode;
     double CondNum = stretchT + m - 2*n + 2;
@@ -722,26 +697,33 @@ int iterationsK(Problem *theProblem, double eps)
 /* A VERIFIER */
 void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
 {
-
-	// TODO faire des simplifications ici car si tout est ok, 
-	// on ne doit plus recalculer les chemins, ils sont connus
-	
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
-    Chemin *myChemin = findCycle(edgeCurrent, theProblem);
-    Edge **edgesChemin = myChemin->theChemin;
+    Edge **edgesChemin = edgeCurrent->edgeChemin->theChemin;
 	
-    double stretchE = stretchEdge(edgeCurrent, myChemin);
+    double stretchE = edgeCurrent->stretch;
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
     
-    for(int i = 0; i < myChemin->size; i++)
-    {
+    int indiceCurrent = edgeCurrent->b->indice;
+    for(int i = 0; i < edgeCurrent->edgeChemin->size; i++)
+    {// Attention ici il faut prendre le sens du flot selon le 
+    // sens de parcourt du cycle :-)        
+        if(indiceCurrent == edgesChemin[i]->a->indice)
+        {        
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
+    	indiceCurrent = edgesChemin[i]->b->indice;
+    	}
+    	else
+    	{
+    	Delta = Delta - (edgesChemin[i]->f)/(edgesChemin[i]->weight);
+    	indiceCurrent = edgesChemin[i]->a->indice;
+    	}
+    
     }
     edgeCurrent->f = edgeCurrent->f - Delta/Re;
 
-    int indiceCurrent = edgeCurrent->b->indice;
-    for(int i = 0; i < myChemin->size; i++)
+    indiceCurrent = edgeCurrent->b->indice;
+    for(int i = 0; i < edgeCurrent->edgeChemin->size; i++)
     {
         if(indiceCurrent == edgesChemin[i]->a->indice)
         {
@@ -781,22 +763,15 @@ double* InducedVoltages(Problem *theProblem) // pas encore optimise
         voltages[i] = 0.0;
     }
 
-    //printf("ok ? \n");
-//    for(int i =0; i < theProblem->nNode-1; i++)
-//    {
-//        printf("%d ",theProblem->theTree.edgesTree[i]->indice);
-//    }
-    //printf("ok ? \n");
-
     for(int i = 0; i < theProblem->nNode; i++)
     {
         Chemin *myChemin = findPath(theProblem->theTree.nodeSource->indice, theProblem->nodes[i].indice, theProblem);
+        // TODO: controler que findPath fait pas de la merde quand on lui envoie des indices proches etc
         for(int j = 0; j < myChemin->size; j++)
         {
             voltages[i] = voltages[i] + (myChemin->theChemin[j]->f)/(myChemin->theChemin[j]->weight);
         }
     }
-
     return voltages;
 }
 
