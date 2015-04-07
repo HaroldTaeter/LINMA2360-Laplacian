@@ -1,15 +1,11 @@
-
-
--) Après avoir trouvé l'arbre: - pour les edges dans le tree et en dehors, calculer leur stretch (trivial si dans l'arbre)
-	et ajouter cela à la structure arbre. Au passage on ajoute un *Chemin à ma structure edge, comme ça on calcule UNE SEULE FOIS
-	le chemin attaché à une edge.
-
-
+-) Remplacer les weight des edges par la resistance re
 
 -) Décider (faut en parler au prof) sous quelle forme notre code doit recevoir le problème (matrice dans un fichier ?).
 	Et de cela va dépendre vraiment quelle est la bonne structure de données à prendre (ce qu'on a pour l'instant est assez lourd 
 	et redondant).
--) Trouver un flot initial.
--) Pour le find path, il faut comparer les dernier de a avec tous le sb et le dernier b avec tous les a
-
+-) Trouver un flot initial: harold à tester TODO
+-) Idée pour le stockage des données: on a juste besoin d'un tableau d'edges à trier par resistance pour former l'arbre.
+	Ensuite, c'est juste une question de se déplacer dans l'arbre et on a peut être besoin que des incidentes etc que pour des
+	voisins dans l'arbre (évite la fonction inTree quoi ..) ca va améliorer al stoquage, un peu la vitesse aussi probablement
+-) print only edges in binary file and adapt function createProblem
 

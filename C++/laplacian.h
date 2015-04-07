@@ -61,7 +61,6 @@ double *b;
 Tree theTree;
 double *theCumulatedProba;
 int *parent;
-
 };
 
 /* //////////////////////////// Les fonctions ///////////////////////////////////// */

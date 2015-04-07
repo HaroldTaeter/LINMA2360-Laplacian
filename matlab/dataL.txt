@@ -1,2 +1,0 @@
-Number of nodes 1000 
-Number of edges 1997 
