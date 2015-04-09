@@ -86,7 +86,10 @@ double*         	probaCompute(Problem *theProblem);
 int             	iterationsK(Problem *theProblem, double eps);
 void            	CycleUpdate(Edge *edgeCurrent, Problem *theProblem);
 Edge*           	RandomPicking(Problem *theProblem, Edge **edgesOffTree);
-double*         	InducedVoltages(Problem *theProblem);
 double*         	InducedVoltages2(Problem *theProblem);
 void                	stretchsAndChemins(Problem *theProblem);
+void 			setFlow2(Problem *theProblem, double *ksi);
+void 			SetPredecessor(Problem *theProblem);
+void 			SetNodes(Problem *theProblem);
+void 			FreeLaplacian(Problem *theProblem);
 #endif

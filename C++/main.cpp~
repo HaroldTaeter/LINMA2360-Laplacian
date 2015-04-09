@@ -10,8 +10,9 @@
 
 
 //#define _edges300_
-#define _edges1000_
+//#define _edges1000_
 //#define _edges3000_
+#define _edges9000_
 
 //#include "laplacian.cpp"
 
@@ -33,8 +34,7 @@ int main(void)
        char *FileNameL="edges3000.txt";
        char *FileNameb="datab3000.txt";
        #endif
-       
-  	
+	  	
        struct timespec start, inter1, finish;
        double elapsed;
 	

@@ -3,6 +3,7 @@
  *
  */
 
+//#define _PRINT_SOL_
 #include "laplacian.h"
 
 using namespace std;
@@ -15,33 +16,37 @@ Main function that runs the algorithm after initialization of the data
 */
 void Solve(char *FileNameL,char *FileNameb)
 {
-	
+
 	int i,j;
 	Problem *theProblem= createProblem(FileNameL, FileNameb);
 	printf("OK: Problem created \n");
-	
+
 
 	struct timespec startIN, finishIN;
        double elapsed;
-	
-       clock_gettime(CLOCK_MONOTONIC, &startIN);
-      
-       
 
-	Kruskal(theProblem);	
+       clock_gettime(CLOCK_MONOTONIC, &startIN);
+
+	Kruskal(theProblem);
 	printf("OK: Kruskal \n");
-	
+
+	SetNodes(theProblem);
+	printf("OK: SetNodes \n");
+
+	SetPredecessor(theProblem);
+	printf("OK: Predecessor \n");
+
 	stretchsAndChemins(theProblem);
 	printf("OK: Strech and Chemins \n");
-	
+
 			// RUN
 	setFlow(0, theProblem->nNode-1, theProblem);
 	printf("OK: Set flow \n");
-		
+
 	theProblem->theCumulatedProba=probaCompute(theProblem);
 
 	int iter;
-	int iterMax= iterationsK(theProblem, 0.001);
+	int iterMax= iterationsK(theProblem, 5.1);
 	printf("iterMax=%d \n", iterMax);
 	for(iter=0; iter<iterMax; iter++)
 	{
@@ -52,22 +57,31 @@ void Solve(char *FileNameL,char *FileNameb)
 		//double Delta=testKPL(edgeCurrent);
 		//printf("Delta after cycleUpdate = %f \n", Delta);
 	}
-	
-    	double *voltages = new double[theProblem->nNode];
 
-    	//voltages = InducedVoltages(theProblem);
+    	double *voltages = new double[theProblem->nNode];
 	voltages = InducedVoltages2(theProblem);
-	
+
 	clock_gettime(CLOCK_MONOTONIC, &finishIN);
- 
+
 	elapsed = (finishIN.tv_sec - startIN.tv_sec);
 	elapsed += (finishIN.tv_nsec - startIN.tv_nsec) / 1000000000.0;
 	printf("time_elapsed_computation: %f\n",elapsed);
-      
+
+#ifdef _PRINT_SOL_
     for(int i = 0; i < theProblem->nNode; i++)
     {
         printf("Voltage on node %d = %f \n",i,voltages[i]);
     }
+#endif
+
+	FreeLaplacian(theProblem);
+
+}
+
+void FreeLaplacian(Problem *theProblem)
+{
+// TODO il y a plein d'autres trucs à free !!
+delete [] theProblem;
 }
 
 void setFlow(int indexNodeA, int indexNodeB, Problem *theProblem)
@@ -111,70 +125,38 @@ int i,j,trash;
 FILE* fichier = NULL;
 int length;
 fichier = fopen(FileNameL,"r+");
-int node1; 
+int node1;
 int node2;
 
 	if (fichier == NULL) printf("Error: No data file !\n");
-	
+
 		fscanf(fichier,"%d \n",&theProblem->nNode);
 		int nNode = theProblem->nNode;
 		printf("Nombre de nodes %d\n",theProblem->nNode);
-		int *nVoisinsCurrent= new int[theProblem->nNode];// nombre de voisins déjà ajouté au node[i]
-		
+
 		fscanf(fichier,"%d \n",&theProblem->nEdge);
 		printf("Nombre d'edges %d\n",theProblem->nEdge);
 
 		theProblem->nodes=new Node[theProblem->nNode];
 		theProblem->edges=new Edge[theProblem->nEdge];
-		for(i=0; i<nNode; i++)	
-		{
-			nVoisinsCurrent[i]=0;
+		for(i=0; i<nNode; i++)
+		{// TODO besoin de cette boucle ? ou elle peut aller dans SetPredecessor ?
+		// je crois qu'on a besoin des indices avant predecessor (dans kruskal)
 			theProblem->nodes[i].degree=0;
 			theProblem->nodes[i].indice=i;
 		}
 
 		for(i=0; i<theProblem->nEdge; i++)
 		{
-			fscanf(fichier,"%d %d %lf\n",&node1, &node2, &theProblem->edges[i].weight);	
-		
+			fscanf(fichier,"%d %d %lf\n",&node1, &node2, &theProblem->edges[i].weight);
+
 			theProblem->edges[i].a=&theProblem->nodes[node1];
 			theProblem->edges[i].b=&theProblem->nodes[node2];
 			theProblem->edges[i].indice=i;
 			theProblem->edges[i].f=0.0;// toutes les edges sont ok :-)
-			
-			theProblem->nodes[node1].degree++;
-			theProblem->nodes[node2].degree++;// after this loop all degrees of the nodes are ok
 		}
-		
 
 		fclose(fichier);
-
-
-for(i=0; i<theProblem->nNode; i++)
-{// initialisation pour chaque noeud
-	theProblem->nodes[i].voisins= new Node*[theProblem->nodes[i].degree];
-	theProblem->nodes[i].incidentes= new Edge*[theProblem->nodes[i].degree];
-}
-for(i=0; i<theProblem->nEdge; i++)
-{
-	node1=theProblem->edges[i].a->indice;
-	node2=theProblem->edges[i].b->indice;
-	// update node 1
-	
-	theProblem->nodes[node1].incidentes[nVoisinsCurrent[node1]]=&theProblem->edges[i];
-	theProblem->nodes[node1].voisins[nVoisinsCurrent[node1]]=&theProblem->nodes[node2];
-	nVoisinsCurrent[node1]++;
-	// update node 2
-	
-	theProblem->nodes[node2].incidentes[nVoisinsCurrent[node2]]=&theProblem->edges[i];
-	theProblem->nodes[node2].voisins[nVoisinsCurrent[node2]]=&theProblem->nodes[node1];
-	nVoisinsCurrent[node2]++;
-}
-
-delete[] nVoisinsCurrent;
-
-
-
 Tree arbreNew;
 arbreNew.edgesTree=NULL;
 arbreNew.predecessor=NULL;
@@ -196,7 +178,7 @@ theProblem->b= new double[theProblem->nNode];
 		fclose(fichier2);
 	}
 	else{printf("Impossible d'ouvrir le fichier datab.txt\n");}
-	
+
 theProblem->edgesSorted=new Edge[theProblem->nEdge];
 theProblem->edgesOffTree = new Edge*[theProblem->nEdge-(theProblem->nNode-1)];
 theProblem->parent = new int[theProblem->nNode];
@@ -231,12 +213,12 @@ void Kruskal(Problem *theProblem)
 	fill_n(theProblem->parent, theProblem->nNode, 0);// fonctionne mais pourquoi ?
 	for(i=0; i<theProblem->nEdge;i++)
 	{
-	theProblem->edgesSorted[i]=theProblem->edges[i]; 
+	theProblem->edgesSorted[i]=theProblem->edges[i];
 	}
     	int compteurTree=0;
 	int compteurOffTree=0;
-	edgeSort(theProblem);	
-        int iter;	
+	edgeSort(theProblem);
+        int iter;
 	for(iter=0; iter<theProblem->nEdge; iter++)
 	{
 		i=theProblem->edgesSorted[iter].a->indice;
@@ -246,60 +228,103 @@ void Kruskal(Problem *theProblem)
 		u=find(u, theProblem);
 	    	v=find(v, theProblem);
     		if(uni(u,v, theProblem))
-    		{	
-    		theProblem->theTree.edgesTree[compteurTree]=&theProblem->edges[findIndex(a,b,theProblem)];
+    		{
+    		theProblem->theTree.edgesTree[compteurTree]=&theProblem->edgesSorted[iter];
+    		//theProblem->theTree.edgesTree[compteurTree]=&theProblem->edges[findIndex(a,b,theProblem)];
+    		// est ce que findIndex ne renvoie pas edgesSorted[iter] par hasard ? :D TODO vérifier !!
     		ne++;
     		compteurTree++;
-    		}	
+    		}
     		else{
-    		theProblem->edgesOffTree[compteurOffTree]=&theProblem->edges[findIndex(a,b,theProblem)];
+    		theProblem->edgesOffTree[compteurOffTree]=&theProblem->edgesSorted[iter];
+    		//theProblem->edgesOffTree[compteurOffTree]=&theProblem->edges[findIndex(a,b,theProblem)];
+    		// il faudrait remplacer le findIndex ici car on a supprimé les incidentes hors Tree :p
+    		// peut se faire à la bourin en parcourant toutes les edges :p
     		compteurOffTree++;
 	    	}
-    		if (ne==theProblem->nNode){ break;} 
+    		if (ne==theProblem->nNode){ break;}
 	}
 	    for(iter=ne-1; iter< theProblem->nEdge; iter++)
 	    {
 	    	theProblem->edgesOffTree[compteurOffTree]=&theProblem->edgesSorted[iter];
     		compteurOffTree++;
 	    }
+}
+
+/*
+Initialises the Nodes structure but only based on the Tree edges.
+*/
+void SetNodes(Problem *theProblem)
+{
+ int i,j,node1,node2;;
+ int *nVoisinsCurrent= new int[theProblem->nNode];// nombre de voisins déjà ajouté au node[i]
+
+for(i=0; i<theProblem->nNode-1; i++)// precalcul du nombre de voisins (serait cool de l'éviter)
+{
+	node1=theProblem->theTree.edgesTree[i]->a->indice;
+	node2=theProblem->theTree.edgesTree[i]->b->indice;
+
+	theProblem->nodes[node1].degree++;
+	theProblem->nodes[node2].degree++;
+}
+
+for(i=0; i<theProblem->nNode; i++)
+{// initialisation pour chaque noeud
+	nVoisinsCurrent[i]=0;
+	theProblem->nodes[i].voisins= new Node*[theProblem->nodes[i].degree];
+	theProblem->nodes[i].incidentes= new Edge*[theProblem->nodes[i].degree];
+}
+for(i=0; i<theProblem->nNode-1; i++)// boucle sur edgesTree
+{
+	node1=theProblem->theTree.edgesTree[i]->a->indice;
+	node2=theProblem->theTree.edgesTree[i]->b->indice;
+	// update node 1
+
+	theProblem->nodes[node1].incidentes[nVoisinsCurrent[node1]]=theProblem->theTree.edgesTree[i];
+	theProblem->nodes[node1].voisins[nVoisinsCurrent[node1]]=&theProblem->nodes[node2];
+	nVoisinsCurrent[node1]++;
+	// update node 2
+
+	theProblem->nodes[node2].incidentes[nVoisinsCurrent[node2]]=theProblem->theTree.edgesTree[i];
+	theProblem->nodes[node2].voisins[nVoisinsCurrent[node2]]=&theProblem->nodes[node1];
+	nVoisinsCurrent[node2]++;
+}
+delete[] nVoisinsCurrent;
+}
+
+
+/*
+Using the edgesTree, computes the predecessor array from the Tree (used in findPath)
+*/
+void SetPredecessor(Problem *theProblem)
+{
+	int i;
     	/// Maintenant on rempli predecessor en faisant DFS
-	theProblem->theTree.nodeSource = &theProblem->nodes[0];// smart choice for source ? node central ? 
+	theProblem->theTree.nodeSource = &theProblem->nodes[0];// smart choice for source ? node central ?
     	theProblem->theTree.predecessor= new int[theProblem->nNode];
     	theProblem->theTree.predecessor[0]=-1;// le premier node n'a pas de predecessor, on prend racine = node d'indice zero
 
     	queue<int> myqueue;
-	myqueue.push(0);
-    	int *added= new int[theProblem->nNode];
-    	added[0]=1;
-    	for(i=1; i<theProblem->nNode; i++) added[i]=0;
+	myqueue.push(theProblem->theTree.nodeSource->indice);
+    	int *visited= new int[theProblem->nNode];
+    	fill_n(visited, theProblem->nNode,0);
+    	visited[theProblem->theTree.nodeSource->indice]=1;
 
     	while(!myqueue.empty())
 	{
 		int currentNode=myqueue.front();// on va spliter ce node
         	myqueue.pop();
         	for (i = 0; i < theProblem->nodes[currentNode].degree ; i++)
-            	{// TODO ici on peut utiliser les voisins pour alléger les notations
-            	// voir voltages2 pour exemples :-) 
-            		if( theProblem->nodes[currentNode].incidentes[i]->a->indice != currentNode  &&
-            			added[theProblem->nodes[currentNode].incidentes[i]->a->indice] == 0 &&
-            			inTree(theProblem->nodes[currentNode].incidentes[i], theProblem)==1 )
+            	{// TODO check
+            		if(visited[theProblem->nodes[currentNode].voisins[i]->indice] == 0)
             		{
-            			myqueue.push(theProblem->nodes[currentNode].incidentes[i]->a->indice);
-            			theProblem->theTree.predecessor[theProblem->nodes[currentNode].incidentes[i]->a->indice]=currentNode;
-	            		added[theProblem->nodes[currentNode].incidentes[i]->a->indice]=1;	
+            		myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
+            		theProblem->theTree.predecessor[theProblem->nodes[currentNode].voisins[i]->indice]=currentNode;
+	            	visited[theProblem->nodes[currentNode].voisins[i]->indice]=1;
             		}
-            		else if( theProblem->nodes[currentNode].incidentes[i]->b->indice != currentNode  &&
-            			added[theProblem->nodes[currentNode].incidentes[i]->b->indice] == 0 &&
-            			inTree(theProblem->nodes[currentNode].incidentes[i], theProblem)==1)
-            		{
-	      			myqueue.push(theProblem->nodes[currentNode].incidentes[i]->b->indice);
-            			theProblem->theTree.predecessor[theProblem->nodes[currentNode].incidentes[i]->b->indice]=currentNode;
-	            		added[theProblem->nodes[currentNode].incidentes[i]->b->indice]=1;
-            		}		
-               	}
-    	}
+            	}
+	}
 }
-
 /*
 Function find
 Needed in Kruskal's algorithm
@@ -332,10 +357,10 @@ int uni(int i,int j, Problem *theProblem)
 Function findIndex
 Returns the index of an edge that links 2 nodes. Given the index of the 2 nodes a and b
 @pre: Index of 2 neighbour nodes
-@post: Index of edge linking the two nodes
+@post: Index of edge linking the two nodes (edge in the Tree)
 */
 int findIndex(int a, int b,Problem *theProblem)
-{// TODO cette fonction est assez moche donc si à terme on s'en passe ça serait cool :-)
+{// je crois que si on sait enlever cette fonction c'est en utilisant des pures listes d'adjacences mais ça revient un peu au même
 int i;
 int index=0;
 for(i=0; i < theProblem->nodes[a].degree; i++)
@@ -346,29 +371,9 @@ for(i=0; i < theProblem->nodes[a].degree; i++)
 		break;
 	}
 }
-
 return index;
 }
 
-/*
-Prend un pointeur sur une edge et renvoie 1 si elle est dans theTree, 0 sinon
-
-*/
-int inTree(Edge *edgea,Problem *theProblem)
-{
-	int i; 
-	for(i=0; i<theProblem->nNode-1; i++)
-	{
-		if( theProblem->theTree.edgesTree[i]->indice == edgea->indice )
-		{
-			return 1; 
-		}
-	}
-	
-	return 0; 
-
-
-}
 /////////////////////////////////////////////////////////////////////
 /////////////////////////// DFS & Cie //////////////////////////////
 
@@ -481,7 +486,7 @@ Chemin* findPath(int IndexNodeA, int IndexNodeB, Problem *theProblem)
 
 	for(i = 1; i <= stopNodeB; i++)
     {
-        path->theChemin[i-1] = &theProblem->edges[findIndex(tabB[i],tabB[i-1],theProblem)];
+            path->theChemin[i-1] = &theProblem->edges[findIndex(tabB[i],tabB[i-1],theProblem)];
     }
     for(i = stopNodeA; i >= 1; i--)
     {
@@ -527,12 +532,12 @@ For an edge offTree, returns the value of Delta on the cycle ()
 double testKPL(Edge *edgeCurrent)
 {
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
-    Edge **edgesChemin = edgeCurrent->edgeChemin->theChemin;  
+    Edge **edgesChemin = edgeCurrent->edgeChemin->theChemin;
     int indiceCurrent = edgeCurrent->b->indice;
     for(int i = 0; i < edgeCurrent->edgeChemin->size; i++)
-    {   
+    {
         if(indiceCurrent == edgesChemin[i]->a->indice)
-        {        
+        {
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     	indiceCurrent = edgesChemin[i]->b->indice;
     	}
@@ -542,7 +547,7 @@ double testKPL(Edge *edgeCurrent)
     	indiceCurrent = edgesChemin[i]->a->indice;
     	}
     }
-    
+
     return Delta;
 }
 
@@ -560,9 +565,9 @@ void stretchsAndChemins(Problem *theProblem)
     for(int i = 0; i < (theProblem->nNode - 1); i++)
     {
         theProblem->theTree.edgesTree[i]->stretch = 1;
-     	
+
      	Chemin path;
-     	path.size=1; 
+     	path.size=1;
      	path.theChemin=new Edge*[1];
      	path.theChemin[0]=theProblem->theTree.edgesTree[i];
      	theProblem->theTree.edgesTree[i]->edgeChemin=&path;
@@ -594,7 +599,7 @@ double stretchEdge(Edge *edgeCurrent, Chemin *Chemin)
 double probabilityEdge(Edge *edgeCurrent, Problem *theProblem)
 {
     double stretchE = edgeCurrent->stretch;
-    double stretchT = theProblem->theTree.stretch;    
+    double stretchT = theProblem->theTree.stretch;
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
     int m = theProblem->nEdge;
@@ -612,26 +617,26 @@ double* probaCompute(Problem *theProblem)
 
     double *probabilities = new double[nEdgesOffTree];
     double sumProba=0.0;
-    int i; 
+    int i;
     for(i = 0; i < nEdgesOffTree; i++) // les probas correspondent à l'ordre de edgesOffTree
     {
             probabilities[i] = probabilityEdge(theProblem->edgesOffTree[i],theProblem);
-            sumProba +=     probabilities[i];   
+            sumProba +=     probabilities[i];
     }
-    
+
     for(i = 0; i < nEdgesOffTree; i++) // TODO problem a régler ! La somme ne vaut pas 1 donc j'ai normalisé.
     {
             probabilities[i] = probabilities[i]/sumProba;
 
     }
-	
+
 //	for(i=0; i<nEdgesOffTree; i++)
 //	{
-//		printf(" edges number %d off the tree has indice= %d and proba=%f \n",i,theProblem->edgesOffTree[i]->indice, 
+//		printf(" edges number %d off the tree has indice= %d and proba=%f \n",i,theProblem->edgesOffTree[i]->indice,
 //			probabilities[i]);
 //	}
-//	
-	
+//
+
     double *cumulatedProba = new double[nEdgesOffTree+1];
     cumulatedProba[0] = 0.0;
     for(int i = 1; i <= nEdgesOffTree; i++)
@@ -644,7 +649,7 @@ double* probaCompute(Problem *theProblem)
 /* A VERIFIER */
 int iterationsK(Problem *theProblem, double eps)
 {
-    double stretchT = theProblem->theTree.stretch;   
+    double stretchT = theProblem->theTree.stretch;
     int m = theProblem->nEdge;
     int n = theProblem->nNode;
     double CondNum = stretchT + m - 2*n + 2;
@@ -658,17 +663,17 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
 {
     double Delta = (edgeCurrent->f)/(edgeCurrent->weight);
     Edge **edgesChemin = edgeCurrent->edgeChemin->theChemin;
-	
+
     double stretchE = edgeCurrent->stretch;
     double re = 1/(edgeCurrent->weight);
     double Re = re*(1+stretchE);
-    
+
     int indiceCurrent = edgeCurrent->b->indice;
     for(int i = 0; i < edgeCurrent->edgeChemin->size; i++)
-    {// Attention ici il faut prendre le sens du flot selon le 
-    // sens de parcourt du cycle :-)        
+    {// Attention ici il faut prendre le sens du flot selon le
+    // sens de parcourt du cycle :-)
         if(indiceCurrent == edgesChemin[i]->a->indice)
-        {        
+        {
         Delta = Delta + (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     	indiceCurrent = edgesChemin[i]->b->indice;
     	}
@@ -677,7 +682,7 @@ void CycleUpdate(Edge *edgeCurrent, Problem *theProblem)
     	Delta = Delta - (edgesChemin[i]->f)/(edgesChemin[i]->weight);
     	indiceCurrent = edgesChemin[i]->a->indice;
     	}
-    
+
     }
     if(Delta != 0.0)
     {
@@ -707,46 +712,33 @@ Edge* RandomPicking(Problem *theProblem, Edge **edgesOffTree)
 
     double value = ((double)rand() / ((double)RAND_MAX+1)); // Pas hyper top apparemment mais peut-etre suffisant ici
 
-    for(int i = 1; i <= nEdgesOffTree; i++)
+    /*for(int i = 1; i <= nEdgesOffTree; i++)
     {
         if( (theProblem->theCumulatedProba[i-1] <= value) && (value < theProblem->theCumulatedProba[i]) )
         {
             return edgesOffTree[i-1];
         }
-    }
-}
+    }*/
 
-/* A VERIFIER */
-double* InducedVoltages(Problem *theProblem) // pas encore optimise
-{
-    double *voltages = new double[theProblem->nNode];
-    for(int i = 0; i < theProblem->nNode; i++)
+    int beginIndex = 0;
+    int endIndex = nEdgesOffTree;
+    int midIndex = (int)round(0.5*(beginIndex+endIndex));
+    while(beginIndex != endIndex-1)
     {
-        voltages[i] = 0.0;
-    }
-
-    for(int i = 0; i < theProblem->nNode; i++)
-    {	
-    	int currentNode=theProblem->theTree.nodeSource->indice;
-        Chemin *myChemin = findPath(theProblem->theTree.nodeSource->indice, theProblem->nodes[i].indice, theProblem);
-        // TODO: controler que findPath fait pas de la merde quand on lui envoie des indices proches etc
-        for(int j = 0; j < myChemin->size; j++)
+        if(theProblem->theCumulatedProba[midIndex] > value)
         {
-        	if(myChemin->theChemin[j]->a->indice == currentNode)
-        	{
-        		voltages[i] = voltages[i] - (myChemin->theChemin[j]->f)/(myChemin->theChemin[j]->weight);
-        		currentNode = myChemin->theChemin[j]->b->indice;
-        	}
-        	else
-        	{
-        		voltages[i] = voltages[i] + (myChemin->theChemin[j]->f)/(myChemin->theChemin[j]->weight);
-        		currentNode = myChemin->theChemin[j]->a->indice;
-        	}
-            
+            endIndex = midIndex;
+            midIndex = (int)round(0.5*(beginIndex+endIndex));
+        }
+        else if(theProblem->theCumulatedProba[midIndex] <= value)
+        {
+            beginIndex = midIndex;
+            midIndex = (int)round(0.5*(beginIndex+endIndex));
         }
     }
-    return voltages;
+    return edgesOffTree[beginIndex];
 }
+
 /*
 Semble OK: Renvoie le vecteur des voltages aux nodes sur base des flots.
 */
@@ -758,7 +750,7 @@ double* InducedVoltages2(Problem *theProblem)
         voltages[i] = 0.0;
     }
 
-    Tree finalTree = theProblem->theTree; 
+    Tree finalTree = theProblem->theTree;
     Node *source = finalTree.nodeSource;
 
     queue<int> myqueue;
@@ -776,19 +768,18 @@ double* InducedVoltages2(Problem *theProblem)
        		myqueue.pop();
        	for (int i = 0; i < theProblem->nodes[currentNode].degree ; i++)
         {
-            if(visited[theProblem->nodes[currentNode].voisins[i]->indice]==0 &&
-            	inTree(theProblem->nodes[currentNode].incidentes[i], theProblem)==1)
+            if(visited[theProblem->nodes[currentNode].voisins[i]->indice]==0)
             {
                 myqueue.push(theProblem->nodes[currentNode].voisins[i]->indice);
                 Edge edgeCurrent = theProblem->edges[findIndex(currentNode, theProblem->nodes[currentNode].voisins[i]->indice, theProblem)];
                 if(edgeCurrent.a->indice==currentNode)
-                {
+                {// sens de l'edge pour le courant
                 voltages[theProblem->nodes[currentNode].voisins[i]->indice] = voltages[currentNode] - (edgeCurrent.f)/(edgeCurrent.weight);
                 }
                 else{
                 voltages[theProblem->nodes[currentNode].voisins[i]->indice] = voltages[currentNode] + (edgeCurrent.f)/(edgeCurrent.weight);
                 }
-                
+
                 visited[theProblem->nodes[currentNode].voisins[i]->indice] = 1;
             }
         }
@@ -796,3 +787,68 @@ double* InducedVoltages2(Problem *theProblem)
 
     return voltages;
 }
+
+
+//void setFlow2(Problem *theProblem, double *ksi)
+//{
+//// TODO stoquer les leaves quand on fait DFS avec Kruskal
+//    Tree myTree = theProblem->theTree;
+//    int nLeaves = 0;
+//    Node **leaves = new Node*[theProblem->nNode]; // TROP GRAND
+//    for(int i = 0; i<theProblem->nNode; i++)
+//    {
+//        if(theProblem->nodes[i]->degree == 1) // LA STRUCTURE DOIT CHANGER POUR AVOIR degreeTree
+//        {					// le degree du node avec les edges de l'arbre
+//            leaves[nLeaves] = theProblem->nodes[i];
+//            nLeaves++;
+//        }
+//    }
+
+//    double *edgesDone = new double[theProblem->nNode];
+//    for(int i = 0; i < theProblem->nNode; i++)// nNode ?
+//    {// edge qui mène au predecessor ?
+//        edgesDone[i] = 0;
+//    }
+
+//    int nNewLeaves;
+//    while(nLeaves > 0)
+//    {
+//        nNewLeaves = 0;
+//        Node **Newleaves = new Node*[theProblem->nNode]; // TROP GRAND
+
+//        for(int i = 0; i < nLeaves; i++)
+//        {
+//            int edgeIndex = findIndex(leaves[i]->indice,myTree.predecessor[leaves[i]->indice],theProblem);
+//            if(theProblem->edges[edgeIndex].b->indice == leaves[i]->indice)
+//            {
+//                theProblem->edges[edgeIndex].f += ksi[leaves[i]->indice];
+//                ksi[myTree.predecessor[leaves[i]->indice]] += -theProblem->edges[edgeIndex].f;
+//            }
+//            else if(theProblem->edges[edgeIndex].a->indice == leaves[i]->indice)
+//            {
+//                theProblem->edges[edgeIndex].f += -ksi[leaves[i]->indice];
+//                ksi[myTree.predecessor[leaves[i]->indice]] += theProblem->edges[edgeIndex].f;
+//            }
+//            edgesDone[myTree.predecessor[leaves[i]->indice]] += 1;
+
+//            if(theProblem->nodes[myTree.predecessor[leaves[i]->indice]].degreeTree - edgesDone[myTree.predecessor[leaves[i]->indice]] == 1
+//               && myTree.predecessor[leaves[i]->indice] != -1)
+//            {
+//                Newleaves[nNewLeaves] = theProblem->nodes[myTree.predecessor[leaves[i]->indice]];
+//                nNewLeaves++;
+//            }
+//        }
+//        nLeaves = nNewLeaves;
+//        leaves = Newleaves;
+
+//        delete[] Newleaves;
+//    }
+//}
+
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////// Section 5 ///////////////////////////////
+
+
+
+

@@ -4,8 +4,17 @@
 	Et de cela va dépendre vraiment quelle est la bonne structure de données à prendre (ce qu'on a pour l'instant est assez lourd 
 	et redondant).
 -) Trouver un flot initial: harold à tester TODO
--) Idée pour le stockage des données: on a juste besoin d'un tableau d'edges à trier par resistance pour former l'arbre.
-	Ensuite, c'est juste une question de se déplacer dans l'arbre et on a peut être besoin que des incidentes etc que pour des
-	voisins dans l'arbre (évite la fonction inTree quoi ..) ca va améliorer al stoquage, un peu la vitesse aussi probablement
+-) print only edges in binary file and adapt function createProblem
 
 
+
+En fait il faut: 
+- s'occuper de free tous les bazards
+
+todo: faire un dessin de ce qui est vraiment calculé pour l'optimiser niveau on fais pas 2 fois les mêmes opérations.
+
+- En comprenant union-find on peut surement bien améliorer kruskal (se passer de find index et tableau parent peut etre..)
+	 ! (si on remplace pas par low stretch)
+- Etudier un peu la pertinence de la valeur K du nbr d'itérations
+		=> peut être qu'un low stretch Tree va quand même réduire le nbr itérations.
+		Peut être un critère sur la valeur des Delta pour arrêter les itérations plus tôt ..
